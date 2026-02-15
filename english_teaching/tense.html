@@ -1,0 +1,744 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta http-equiv="x-dns-prefetch-control" content="off"><script src="https://puc.poecdn.net/authenticated_preview_page/standard.3ef2c256959faf5a756d.js"></script>
+    <meta charset="utf-8">
+    <title>Poe</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://puc.poecdn.net/authenticated_preview_page/disableWebRTC.9710cebe07429a9e8e06.js"></script><meta name="x-poe-allow-downloads" content="true"><meta name="x-poe-datastore-behavior" content="disabled"><script src="https://puc.poecdn.net/authenticated_preview_page/tw.b9024aecac666455e183.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/deps.faccd16000d314dc16d5.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/exports.b0f0f482cdeb5302b0b9.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/renderer.75c73ae6b4235f62945a.js"></script><script>Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }var _react = require('react'); var _react2 = _interopRequireDefault(_react);
+var _lucidereact = require('lucide-react');
+var _framermotion = require('framer-motion');
+
+const GrammarKingdom = () => {
+  const [activeTab, setActiveTab] = _react.useState.call(void 0, 'helpers'); // 'helpers', 'grid', 'quiz'
+  const [selectedCell, setSelectedCell] = _react.useState.call(void 0, null);
+  const [selectedExamples, setSelectedExamples] = _react.useState.call(void 0, {});
+
+  // ---------------- 数据定义 ----------------
+
+  const helpers = [
+    {
+      id: 'do',
+      name: '大力士 Do',
+      engName: 'Super Do',
+      icon: _react2.default.createElement(_lucidereact.Dumbbell, { className: "w-12 h-12 text-blue-600"  ,} ),
+      color: 'bg-blue-100',
+      borderColor: 'border-blue-300',
+      desc: '专门负责“一般时态”。遇到问题（？）或者要说不（not），他就会出来扛重物！',
+      keywords: ['do', 'does', 'did']
+    },
+    {
+      id: 'be',
+      name: '变身仙女 Be',
+      engName: 'Fairy Be',
+      icon: _react2.default.createElement(_lucidereact.Wand2, { className: "w-12 h-12 text-pink-600"  ,} ),
+      color: 'bg-pink-100',
+      borderColor: 'border-pink-300',
+      desc: '专门负责“进行时态”。她挥舞魔法棒，动词后面就会长出小尾巴 -ing。',
+      keywords: ['am', 'is', 'are', 'was', 'were']
+    },
+    {
+      id: 'have',
+      name: '收藏家 Have',
+      engName: 'Collector Have',
+      icon: _react2.default.createElement(_lucidereact.Backpack, { className: "w-12 h-12 text-yellow-600"  ,} ),
+      color: 'bg-yellow-100',
+      borderColor: 'border-yellow-300',
+      desc: '专门负责“完成时态”。事情做完了，他就把动词打包放进背包里（过去分词）。',
+      keywords: ['have', 'has', 'had']
+    }
+  ];
+
+  // 9宫格数据
+  const gridData = {
+    rows: [
+      { id: 'simple', name: '一般 Simple', icon: _react2.default.createElement(_lucidereact.Star, { size: 16,} ), helper: 'do' },
+      { id: 'continuous', name: '进行 Continuous', icon: _react2.default.createElement(_lucidereact.PlayCircle, { size: 16,} ), helper: 'be' },
+      { id: 'perfect', name: '完成 Perfect', icon: _react2.default.createElement(_lucidereact.CheckCircle2, { size: 16,} ), helper: 'have' }
+    ],
+    cols: [
+      { id: 'past', name: '过去 Past', icon: '⏪' },
+      { id: 'present', name: '现在 Present', icon: '▶️' },
+      { id: 'future', name: '将来 Future', icon: '🚀' }
+    ],
+    cells: {
+      'simple-past': {
+        tense: '一般过去时',
+        engTense: 'Simple Past',
+        sentence: 'I ate an apple.',
+        trans: '我(那时)吃了一个苹果。',
+        examples: [
+          { en: 'I ate an apple.', cn: '我(那时)吃了一个苹果。' },
+          { en: 'She walked to school.', cn: '她走路去学校。' },
+          { en: 'We watched a movie last night.', cn: '我们昨晚看了一部电影。' },
+          { en: 'He played soccer yesterday.', cn: '他昨天踢了足球。' },
+          { en: 'They visited the museum.', cn: '他们参观了博物馆。' },
+          { en: 'I finished my homework.', cn: '我完成了作业。' },
+          { en: 'She cooked dinner last night.', cn: '她昨晚做了晚饭。' },
+          { en: 'We traveled to Beijing.', cn: '我们去北京旅游了。' },
+          { en: 'He studied English.', cn: '他学习了英语。' },
+          { en: 'They cleaned the house.', cn: '他们打扫了房子。' },
+          { en: 'I bought a new book.', cn: '我买了一本新书。' },
+          { en: 'She danced at the party.', cn: '她在派对上跳了舞。' },
+          { en: 'We arrived home late.', cn: '我们很晚才到家。' },
+          { en: 'He wrote a letter.', cn: '他写了一封信。' },
+          { en: 'They sang a song.', cn: '他们唱了一首歌。' },
+          { en: 'I met my friend.', cn: '我见了我的朋友。' },
+          { en: 'She ran in the park.', cn: '她在公园里跑步了。' },
+          { en: 'We went to the beach.', cn: '我们去了海滩。' },
+          { en: 'He read a magazine.', cn: '他读了一本杂志。' },
+          { en: 'They drove to the city.', cn: '他们开车去了城市。' },
+          { en: 'I saw a rainbow.', cn: '我看到了彩虹。' },
+          { en: 'She made a cake.', cn: '她做了一个蛋糕。' },
+          { en: 'We had fun together.', cn: '我们一起玩得很开心。' },
+          { en: 'He broke his phone.', cn: '他把手机摔坏了。' },
+          { en: 'They found a treasure.', cn: '他们发现了宝藏。' },
+          { en: 'I forgot my keys.', cn: '我忘了带钥匙。' },
+          { en: 'She grew flowers.', cn: '她种了花。' },
+          { en: 'We learned Chinese.', cn: '我们学习了中文。' },
+          { en: 'He opened the door.', cn: '他打开了门。' },
+          { en: 'They painted the wall.', cn: '他们刷了墙。' },
+          { en: 'I called my mom.', cn: '我给妈妈打了电话。' },
+          { en: 'She listened to music.', cn: '她听了音乐。' },
+          { en: 'We played games.', cn: '我们玩了游戏。' },
+          { en: 'He jumped high.', cn: '他跳得很高。' },
+          { en: 'They ate pizza.', cn: '他们吃了披萨。' },
+          { en: 'I slept well.', cn: '我睡得很好。' },
+          { en: 'She smiled at me.', cn: '她对我微笑了。' },
+          { en: 'We won the game.', cn: '我们赢了比赛。' },
+          { en: 'He lost his wallet.', cn: '他丢了钱包。' },
+          { en: 'They enjoyed the show.', cn: '他们很享受演出。' }
+        ],
+        clue: '事情已经发生了。如果问问题，要请大力士 Did 帮忙：Did you eat?',
+        helperId: 'do'
+      },
+      'simple-present': {
+        tense: '一般现在时',
+        engTense: 'Simple Present',
+        sentence: 'I eat an apple every day.',
+        trans: '我每天都吃一个苹果。',
+        examples: [
+          { en: 'I eat an apple every day.', cn: '我每天都吃一个苹果。' },
+          { en: 'He plays basketball on Sundays.', cn: '他每个星期天打篮球。' },
+          { en: 'Cats like fish.', cn: '猫喜欢吃鱼。' },
+          { en: 'She goes to school by bus.', cn: '她乘公交车去上学。' },
+          { en: 'We study English every day.', cn: '我们每天学英语。' },
+          { en: 'The sun rises in the east.', cn: '太阳从东方升起。' },
+          { en: 'Birds fly in the sky.', cn: '鸟在天空中飞。' },
+          { en: 'I drink milk for breakfast.', cn: '我早餐喝牛奶。' },
+          { en: 'He watches TV at night.', cn: '他晚上看电视。' },
+          { en: 'They live in the city.', cn: '他们住在城市里。' },
+          { en: 'Water boils at 100 degrees.', cn: '水在100度沸腾。' },
+          { en: 'She loves chocolate.', cn: '她喜欢巧克力。' },
+          { en: 'We work hard.', cn: '我们努力工作。' },
+          { en: 'Dogs bark loudly.', cn: '狗大声叫。' },
+          { en: 'I wake up at 7 AM.', cn: '我早上7点起床。' },
+          { en: 'He speaks three languages.', cn: '他会说三种语言。' },
+          { en: 'They exercise every morning.', cn: '他们每天早上锻炼。' },
+          { en: 'She reads books often.', cn: '她经常读书。' },
+          { en: 'We enjoy music.', cn: '我们喜欢音乐。' },
+          { en: 'It rains a lot here.', cn: '这里经常下雨。' },
+          { en: 'I need help sometimes.', cn: '我有时需要帮助。' },
+          { en: 'He drives carefully.', cn: '他小心开车。' },
+          { en: 'They cook dinner together.', cn: '他们一起做晚饭。' },
+          { en: 'She dances beautifully.', cn: '她跳舞很美。' },
+          { en: 'We believe in kindness.', cn: '我们相信善良。' },
+          { en: 'Trees grow tall.', cn: '树长得很高。' },
+          { en: 'I know the answer.', cn: '我知道答案。' },
+          { en: 'He runs fast.', cn: '他跑得很快。' },
+          { en: 'They sing well.', cn: '他们唱得很好。' },
+          { en: 'She smiles often.', cn: '她经常微笑。' },
+          { en: 'We play soccer weekly.', cn: '我们每周踢足球。' },
+          { en: 'Ice melts in heat.', cn: '冰在热的时候融化。' },
+          { en: 'I understand you.', cn: '我理解你。' },
+          { en: 'He teaches math.', cn: '他教数学。' },
+          { en: 'They write emails daily.', cn: '他们每天写邮件。' },
+          { en: 'She works at a hospital.', cn: '她在医院工作。' },
+          { en: 'We walk to the park.', cn: '我们走路去公园。' },
+          { en: 'Plants need water.', cn: '植物需要水。' },
+          { en: 'I trust my friends.', cn: '我信任我的朋友。' },
+          { en: 'He helps others.', cn: '他帮助别人。' }
+        ],
+        clue: '这是我的习惯。如果问问题，要请大力士 Do/Does 帮忙：Do you eat?',
+        helperId: 'do'
+      },
+      'simple-future': {
+        tense: '一般将来时',
+        engTense: 'Simple Future',
+        sentence: 'I will eat an apple.',
+        trans: '我(将会)吃一个苹果。',
+        examples: [
+          { en: 'I will eat an apple.', cn: '我(将会)吃一个苹果。' },
+          { en: 'It will rain tomorrow.', cn: '明天会下雨。' },
+          { en: 'They will visit us next week.', cn: '他们下周会来看我们。' },
+          { en: 'She will study hard.', cn: '她会努力学习。' },
+          { en: 'We will go shopping.', cn: '我们会去购物。' },
+          { en: 'He will call you later.', cn: '他等会儿会给你打电话。' },
+          { en: 'I will help you.', cn: '我会帮你。' },
+          { en: 'They will arrive soon.', cn: '他们很快会到。' },
+          { en: 'She will cook dinner.', cn: '她会做晚饭。' },
+          { en: 'We will travel next month.', cn: '我们下个月会去旅行。' },
+          { en: 'He will finish the work.', cn: '他会完成工作。' },
+          { en: 'I will learn to swim.', cn: '我会学游泳。' },
+          { en: 'They will move to a new house.', cn: '他们会搬到新房子。' },
+          { en: 'She will become a doctor.', cn: '她会成为医生。' },
+          { en: 'We will celebrate together.', cn: '我们会一起庆祝。' },
+          { en: 'It will be sunny.', cn: '天气会晴朗。' },
+          { en: 'He will buy a car.', cn: '他会买一辆车。' },
+          { en: 'I will write a book.', cn: '我会写一本书。' },
+          { en: 'They will win the game.', cn: '他们会赢得比赛。' },
+          { en: 'She will teach English.', cn: '她会教英语。' },
+          { en: 'We will meet at 5 PM.', cn: '我们会在下午5点见面。' },
+          { en: 'He will start a business.', cn: '他会创业。' },
+          { en: 'I will visit my grandparents.', cn: '我会去看望我的祖父母。' },
+          { en: 'They will build a school.', cn: '他们会建一所学校。' },
+          { en: 'She will paint a picture.', cn: '她会画一幅画。' },
+          { en: 'We will watch a movie.', cn: '我们会看电影。' },
+          { en: 'It will snow tonight.', cn: '今晚会下雪。' },
+          { en: 'He will graduate next year.', cn: '他明年会毕业。' },
+          { en: 'I will clean my room.', cn: '我会打扫房间。' },
+          { en: 'They will open a store.', cn: '他们会开一家商店。' },
+          { en: 'She will sing a song.', cn: '她会唱一首歌。' },
+          { en: 'We will plant trees.', cn: '我们会种树。' },
+          { en: 'He will fix the computer.', cn: '他会修电脑。' },
+          { en: 'I will take a break.', cn: '我会休息一下。' },
+          { en: 'They will bring gifts.', cn: '他们会带礼物。' },
+          { en: 'She will wear a dress.', cn: '她会穿裙子。' },
+          { en: 'We will have a party.', cn: '我们会办派对。' },
+          { en: 'He will practice daily.', cn: '他会每天练习。' },
+          { en: 'I will remember this.', cn: '我会记住这个。' },
+          { en: 'They will succeed.', cn: '他们会成功。' }
+        ],
+        clue: '计划以后做。这里有个特殊朋友 Will 来帮忙。',
+        helperId: 'do'
+      },
+      'continuous-past': {
+        tense: '过去进行时',
+        engTense: 'Past Continuous',
+        sentence: 'I was eating an apple.',
+        trans: '我(那时)正在吃苹果。',
+        examples: [
+          { en: 'I was eating an apple.', cn: '我(那时)正在吃苹果。' },
+          { en: 'She was reading a book when I called.', cn: '我打电话时她正在看书。' },
+          { en: 'They were playing games all evening.', cn: '他们整个晚上都在玩游戏。' },
+          { en: 'He was watching TV.', cn: '他那时正在看电视。' },
+          { en: 'We were studying together.', cn: '我们那时正在一起学习。' },
+          { en: 'She was cooking dinner.', cn: '她那时正在做晚饭。' },
+          { en: 'I was walking in the park.', cn: '我那时正在公园里散步。' },
+          { en: 'They were dancing at the party.', cn: '他们那时正在派对上跳舞。' },
+          { en: 'He was writing an email.', cn: '他那时正在写邮件。' },
+          { en: 'We were talking about it.', cn: '我们那时正在谈论这个。' },
+          { en: 'She was sleeping at noon.', cn: '她中午时正在睡觉。' },
+          { en: 'I was listening to music.', cn: '我那时正在听音乐。' },
+          { en: 'They were building a house.', cn: '他们那时正在建房子。' },
+          { en: 'He was driving to work.', cn: '他那时正在开车去上班。' },
+          { en: 'We were having lunch.', cn: '我们那时正在吃午饭。' },
+          { en: 'She was painting a picture.', cn: '她那时正在画画。' },
+          { en: 'I was running late.', cn: '我那时正在迟到。' },
+          { en: 'They were laughing loudly.', cn: '他们那时正在大声笑。' },
+          { en: 'He was teaching a class.', cn: '他那时正在上课。' },
+          { en: 'We were waiting for the bus.', cn: '我们那时正在等公交车。' },
+          { en: 'She was singing a song.', cn: '她那时正在唱歌。' },
+          { en: 'I was thinking about you.', cn: '我那时正在想你。' },
+          { en: 'They were cleaning the room.', cn: '他们那时正在打扫房间。' },
+          { en: 'He was fixing his bike.', cn: '他那时正在修自行车。' },
+          { en: 'We were planning a trip.', cn: '我们那时正在计划旅行。' },
+          { en: 'She was learning Chinese.', cn: '她那时正在学中文。' },
+          { en: 'I was working on a project.', cn: '我那时正在做项目。' },
+          { en: 'They were shopping online.', cn: '他们那时正在网上购物。' },
+          { en: 'He was playing guitar.', cn: '他那时正在弹吉他。' },
+          { en: 'We were enjoying the show.', cn: '我们那时正在享受演出。' },
+          { en: 'She was taking photos.', cn: '她那时正在拍照。' },
+          { en: 'I was preparing dinner.', cn: '我那时正在准备晚饭。' },
+          { en: 'They were discussing the plan.', cn: '他们那时正在讨论计划。' },
+          { en: 'He was practicing English.', cn: '他那时正在练习英语。' },
+          { en: 'We were watching a movie.', cn: '我们那时正在看电影。' },
+          { en: 'She was typing on the computer.', cn: '她那时正在电脑上打字。' },
+          { en: 'I was resting at home.', cn: '我那时正在家里休息。' },
+          { en: 'They were traveling abroad.', cn: '他们那时正在国外旅行。' },
+          { en: 'He was sitting quietly.', cn: '他那时正安静地坐着。' },
+          { en: 'We were celebrating a birthday.', cn: '我们那时正在庆祝生日。' }
+        ],
+        clue: '仙女 Be 变成了 was/were，动词加了 ing。',
+        helperId: 'be'
+      },
+      'continuous-present': {
+        tense: '现在进行时',
+        engTense: 'Present Continuous',
+        sentence: 'I am eating an apple.',
+        trans: '我(现在)正在吃苹果。',
+        examples: [
+          { en: 'I am eating an apple.', cn: '我(现在)正在吃苹果。' },
+          { en: 'Look! It is snowing.', cn: '看！正在下雪。' },
+          { en: 'The baby is sleeping now.', cn: '宝宝现在正在睡觉。' },
+          { en: 'She is reading a book.', cn: '她正在读书。' },
+          { en: 'We are studying English.', cn: '我们正在学英语。' },
+          { en: 'He is playing basketball.', cn: '他正在打篮球。' },
+          { en: 'They are watching TV.', cn: '他们正在看电视。' },
+          { en: 'I am working on my computer.', cn: '我正在用电脑工作。' },
+          { en: 'She is cooking lunch.', cn: '她正在做午饭。' },
+          { en: 'We are having a meeting.', cn: '我们正在开会。' },
+          { en: 'He is driving home.', cn: '他正在开车回家。' },
+          { en: 'They are talking on the phone.', cn: '他们正在打电话。' },
+          { en: 'I am listening to music.', cn: '我正在听音乐。' },
+          { en: 'She is writing an essay.', cn: '她正在写文章。' },
+          { en: 'We are walking to school.', cn: '我们正在走路去学校。' },
+          { en: 'He is taking a shower.', cn: '他正在洗澡。' },
+          { en: 'They are cleaning the house.', cn: '他们正在打扫房子。' },
+          { en: 'I am drinking coffee.', cn: '我正在喝咖啡。' },
+          { en: 'She is dancing beautifully.', cn: '她正在优美地跳舞。' },
+          { en: 'We are learning new things.', cn: '我们正在学习新东西。' },
+          { en: 'He is painting the wall.', cn: '他正在刷墙。' },
+          { en: 'They are building a bridge.', cn: '他们正在建桥。' },
+          { en: 'I am running in the park.', cn: '我正在公园里跑步。' },
+          { en: 'She is singing loudly.', cn: '她正在大声唱歌。' },
+          { en: 'We are waiting for you.', cn: '我们正在等你。' },
+          { en: 'He is exercising at the gym.', cn: '他正在健身房锻炼。' },
+          { en: 'They are traveling to Paris.', cn: '他们正在去巴黎旅行。' },
+          { en: 'I am making breakfast.', cn: '我正在做早餐。' },
+          { en: 'She is teaching a class.', cn: '她正在上课。' },
+          { en: 'We are planning a party.', cn: '我们正在计划派对。' },
+          { en: 'He is fixing the car.', cn: '他正在修车。' },
+          { en: 'They are shopping for clothes.', cn: '他们正在买衣服。' },
+          { en: 'I am typing an email.', cn: '我正在打邮件。' },
+          { en: 'She is drawing a picture.', cn: '她正在画画。' },
+          { en: 'We are enjoying the sunshine.', cn: '我们正在享受阳光。' },
+          { en: 'He is practicing piano.', cn: '他正在练钢琴。' },
+          { en: 'They are preparing dinner.', cn: '他们正在准备晚饭。' },
+          { en: 'I am thinking about it.', cn: '我正在考虑这个。' },
+          { en: 'She is smiling happily.', cn: '她正在开心地微笑。' },
+          { en: 'We are playing games.', cn: '我们正在玩游戏。' }
+        ],
+        clue: '仙女 Be 变成了 am/is/are，动词加了 ing。',
+        helperId: 'be'
+      },
+      'continuous-future': {
+        tense: '将来进行时',
+        engTense: 'Future Continuous',
+        sentence: 'I will be eating an apple.',
+        trans: '我(那时)将正在吃苹果。',
+        examples: [
+          { en: 'I will be eating an apple.', cn: '我(那时)将正在吃苹果。' },
+          { en: 'This time tomorrow, I will be flying to Paris.', cn: '明天这个时候，我将正飞往巴黎。' },
+          { en: 'She will be working at 9 AM.', cn: '上午9点她将正在工作。' },
+          { en: 'We will be studying tonight.', cn: '今晚我们将正在学习。' },
+          { en: 'He will be playing soccer.', cn: '他将正在踢足球。' },
+          { en: 'They will be watching a movie.', cn: '他们将正在看电影。' },
+          { en: 'I will be sleeping at midnight.', cn: '午夜时我将正在睡觉。' },
+          { en: 'She will be cooking dinner then.', cn: '那时她将正在做晚饭。' },
+          { en: 'We will be traveling next week.', cn: '下周我们将正在旅行。' },
+          { en: 'He will be teaching a class.', cn: '他将正在上课。' },
+          { en: 'They will be dancing at the party.', cn: '他们将正在派对上跳舞。' },
+          { en: 'I will be waiting for you.', cn: '我将正在等你。' },
+          { en: 'She will be reading at that time.', cn: '那时她将正在读书。' },
+          { en: 'We will be having lunch soon.', cn: '我们很快将正在吃午饭。' },
+          { en: 'He will be driving home.', cn: '他将正在开车回家。' },
+          { en: 'They will be building a house.', cn: '他们将正在建房子。' },
+          { en: 'I will be exercising tomorrow.', cn: '明天我将正在锻炼。' },
+          { en: 'She will be writing her book.', cn: '她将正在写她的书。' },
+          { en: 'We will be planning the event.', cn: '我们将正在计划活动。' },
+          { en: 'He will be practicing guitar.', cn: '他将正在练吉他。' },
+          { en: 'They will be cleaning the office.', cn: '他们将正在打扫办公室。' },
+          { en: 'I will be running a marathon.', cn: '我将正在跑马拉松。' },
+          { en: 'She will be painting a picture.', cn: '她将正在画画。' },
+          { en: 'We will be celebrating together.', cn: '我们将正在一起庆祝。' },
+          { en: 'He will be fixing the computer.', cn: '他将正在修电脑。' },
+          { en: 'They will be shopping online.', cn: '他们将正在网上购物。' },
+          { en: 'I will be making breakfast.', cn: '我将正在做早餐。' },
+          { en: 'She will be singing on stage.', cn: '她将正在舞台上唱歌。' },
+          { en: 'We will be meeting our friends.', cn: '我们将正在见朋友。' },
+          { en: 'He will be typing his report.', cn: '他将正在打报告。' },
+          { en: 'They will be playing games.', cn: '他们将正在玩游戏。' },
+          { en: 'I will be listening to music.', cn: '我将正在听音乐。' },
+          { en: 'She will be talking to her mom.', cn: '她将正在和妈妈说话。' },
+          { en: 'We will be walking in the park.', cn: '我们将正在公园里散步。' },
+          { en: 'He will be swimming in the pool.', cn: '他将正在泳池里游泳。' },
+          { en: 'They will be preparing dinner.', cn: '他们将正在准备晚饭。' },
+          { en: 'I will be drawing a picture.', cn: '我将正在画画。' },
+          { en: 'She will be resting at home.', cn: '她将正在家里休息。' },
+          { en: 'We will be enjoying the sunset.', cn: '我们将正在欣赏日落。' },
+          { en: 'He will be thinking about it.', cn: '他将正在考虑这个。' }
+        ],
+        clue: 'Will 和仙女 Be 一起合作：will be doing。',
+        helperId: 'be'
+      },
+      'perfect-past': {
+        tense: '过去完成时',
+        engTense: 'Past Perfect',
+        sentence: 'I had eaten the apple.',
+        trans: '我(那时已经)吃完苹果了。',
+        examples: [
+          { en: 'I had eaten the apple.', cn: '我(那时已经)吃完苹果了。' },
+          { en: 'The train had left when we arrived.', cn: '我们到达时火车已经开走了。' },
+          { en: 'She had finished her homework before dinner.', cn: '晚饭前她已经做完了作业。' },
+          { en: 'He had studied before the test.', cn: '考试前他已经学习了。' },
+          { en: 'We had met before.', cn: '我们之前已经见过了。' },
+          { en: 'They had gone home already.', cn: '他们已经回家了。' },
+          { en: 'I had read that book.', cn: '我已经读过那本书了。' },
+          { en: 'She had called me earlier.', cn: '她之前已经给我打过电话了。' },
+          { en: 'We had visited Paris before.', cn: '我们之前已经去过巴黎了。' },
+          { en: 'He had learned Chinese.', cn: '他已经学过中文了。' },
+          { en: 'They had bought tickets.', cn: '他们已经买了票了。' },
+          { en: 'I had seen that movie.', cn: '我已经看过那部电影了。' },
+          { en: 'She had cooked dinner already.', cn: '她已经做好晚饭了。' },
+          { en: 'We had cleaned the room.', cn: '我们已经打扫了房间。' },
+          { en: 'He had written the report.', cn: '他已经写了报告。' },
+          { en: 'They had left early.', cn: '他们已经早早离开了。' },
+          { en: 'I had forgotten my keys.', cn: '我已经忘了我的钥匙。' },
+          { en: 'She had prepared everything.', cn: '她已经准备好了一切。' },
+          { en: 'We had finished the project.', cn: '我们已经完成了项目。' },
+          { en: 'He had worked there before.', cn: '他之前已经在那里工作过了。' },
+          { en: 'They had played that game.', cn: '他们已经玩过那个游戏了。' },
+          { en: 'I had heard the news.', cn: '我已经听说了那个消息。' },
+          { en: 'She had graduated from college.', cn: '她已经大学毕业了。' },
+          { en: 'We had moved to the city.', cn: '我们已经搬到城市了。' },
+          { en: 'He had fixed the car.', cn: '他已经修好了车。' },
+          { en: 'They had waited for hours.', cn: '他们已经等了好几个小时了。' },
+          { en: 'I had saved enough money.', cn: '我已经存够了钱。' },
+          { en: 'She had practiced daily.', cn: '她已经每天练习了。' },
+          { en: 'We had planned the trip.', cn: '我们已经计划好了旅行。' },
+          { en: 'He had painted the wall.', cn: '他已经刷了墙。' },
+          { en: 'They had built a house.', cn: '他们已经建好了房子。' },
+          { en: 'I had taken the medicine.', cn: '我已经吃了药。' },
+          { en: 'She had closed the window.', cn: '她已经关了窗户。' },
+          { en: 'We had watched the show.', cn: '我们已经看了演出。' },
+          { en: 'He had completed his work.', cn: '他已经完成了工作。' },
+          { en: 'They had packed their bags.', cn: '他们已经收拾好了行李。' },
+          { en: 'I had spoken to him.', cn: '我已经和他说过话了。' },
+          { en: 'She had solved the problem.', cn: '她已经解决了问题。' },
+          { en: 'We had arrived on time.', cn: '我们已经准时到达了。' },
+          { en: 'He had understood the lesson.', cn: '他已经理解了课程。' }
+        ],
+        clue: '收藏家 Have 变成了 had。表示在过去某个时间之前就做完了。',
+        helperId: 'have'
+      },
+      'perfect-present': {
+        tense: '现在完成时',
+        engTense: 'Present Perfect',
+        sentence: 'I have eaten the apple.',
+        trans: '我(已经)吃完苹果了。',
+        examples: [
+          { en: 'I have eaten the apple.', cn: '我(已经)吃完苹果了。' },
+          { en: 'I have lost my keys.', cn: '我把钥匙弄丢了。' },
+          { en: 'We have lived here for ten years.', cn: '我们住在这里十年了。' },
+          { en: 'She has finished her homework.', cn: '她已经完成了作业。' },
+          { en: 'They have visited China.', cn: '他们已经去过中国了。' },
+          { en: 'He has learned to swim.', cn: '他已经学会游泳了。' },
+          { en: 'I have seen that movie.', cn: '我已经看过那部电影了。' },
+          { en: 'She has cooked dinner.', cn: '她已经做好晚饭了。' },
+          { en: 'We have completed the project.', cn: '我们已经完成了项目。' },
+          { en: 'He has written a book.', cn: '他已经写了一本书。' },
+          { en: 'They have moved to a new house.', cn: '他们已经搬到新房子了。' },
+          { en: 'I have made many friends.', cn: '我已经交了很多朋友。' },
+          { en: 'She has traveled to Europe.', cn: '她已经去欧洲旅行了。' },
+          { en: 'We have studied English for years.', cn: '我们已经学了好几年英语了。' },
+          { en: 'He has played that game.', cn: '他已经玩过那个游戏了。' },
+          { en: 'They have bought a car.', cn: '他们已经买了一辆车。' },
+          { en: 'I have read this book.', cn: '我已经读过这本书了。' },
+          { en: 'She has graduated from college.', cn: '她已经大学毕业了。' },
+          { en: 'We have been to Japan.', cn: '我们已经去过日本了。' },
+          { en: 'He has fixed the computer.', cn: '他已经修好了电脑。' },
+          { en: 'They have cleaned the house.', cn: '他们已经打扫了房子。' },
+          { en: 'I have tried that food.', cn: '我已经尝过那种食物了。' },
+          { en: 'She has saved enough money.', cn: '她已经存够了钱。' },
+          { en: 'We have met before.', cn: '我们之前已经见过了。' },
+          { en: 'He has worked hard.', cn: '他已经努力工作了。' },
+          { en: 'They have prepared everything.', cn: '他们已经准备好了一切。' },
+          { en: 'I have forgotten his name.', cn: '我已经忘了他的名字。' },
+          { en: 'She has improved a lot.', cn: '她已经进步了很多。' },
+          { en: 'We have reached our goal.', cn: '我们已经达到了目标。' },
+          { en: 'He has become a teacher.', cn: '他已经成为老师了。' },
+          { en: 'They have built a school.', cn: '他们已经建了一所学校。' },
+          { en: 'I have decided to go.', cn: '我已经决定去了。' },
+          { en: 'She has painted the wall.', cn: '她已经刷了墙。' },
+          { en: 'We have changed our plans.', cn: '我们已经改变了计划。' },
+          { en: 'He has passed the exam.', cn: '他已经通过了考试。' },
+          { en: 'They have opened a store.', cn: '他们已经开了一家商店。' },
+          { en: 'I have heard the news.', cn: '我已经听说了那个消息。' },
+          { en: 'She has understood the lesson.', cn: '她已经理解了课程。' },
+          { en: 'We have enjoyed the party.', cn: '我们已经享受了派对。' },
+          { en: 'He has achieved success.', cn: '他已经取得了成功。' }
+        ],
+        clue: '收藏家 Have/Has 来了。表示到现在为止做完了，肚子饱饱的。',
+        helperId: 'have'
+      },
+      'perfect-future': {
+        tense: '将来完成时',
+        engTense: 'Future Perfect',
+        sentence: 'I will have eaten the apple.',
+        trans: '我(到时候将已经)吃完苹果了。',
+        examples: [
+          { en: 'I will have eaten the apple.', cn: '我(到时候将已经)吃完苹果了。' },
+          { en: 'By next year, I will have graduated.', cn: '到明年，我将已经毕业了。' },
+          { en: 'They will have finished the project by Friday.', cn: '到周五，他们将已经完成这个项目。' },
+          { en: 'She will have learned English.', cn: '她将已经学会了英语。' },
+          { en: 'We will have moved by then.', cn: '到那时我们将已经搬家了。' },
+          { en: 'He will have completed his work.', cn: '他将已经完成了工作。' },
+          { en: 'I will have read the book by tomorrow.', cn: '到明天我将已经读完这本书了。' },
+          { en: 'She will have cooked dinner by 7 PM.', cn: '到晚上7点她将已经做好晚饭了。' },
+          { en: 'We will have traveled to five countries.', cn: '我们将已经去过五个国家了。' },
+          { en: 'He will have saved enough money.', cn: '他将已经存够了钱。' },
+          { en: 'They will have built the house.', cn: '他们将已经建好了房子。' },
+          { en: 'I will have passed the exam.', cn: '我将已经通过了考试。' },
+          { en: 'She will have written her thesis.', cn: '她将已经写完了论文。' },
+          { en: 'We will have lived here for ten years.', cn: '我们将已经在这里住了十年了。' },
+          { en: 'He will have retired by then.', cn: '到那时他将已经退休了。' },
+          { en: 'They will have cleaned the house.', cn: '他们将已经打扫好了房子。' },
+          { en: 'I will have finished my homework.', cn: '我将已经完成了作业。' },
+          { en: 'She will have painted the picture.', cn: '她将已经画好了画。' },
+          { en: 'We will have reached our goal.', cn: '我们将已经达到了目标。' },
+          { en: 'He will have fixed the car.', cn: '他将已经修好了车。' },
+          { en: 'They will have prepared everything.', cn: '他们将已经准备好了一切。' },
+          { en: 'I will have met the deadline.', cn: '我将已经赶上了最后期限。' },
+          { en: 'She will have practiced enough.', cn: '她将已经练习够了。' },
+          { en: 'We will have seen the movie.', cn: '我们将已经看过那部电影了。' },
+          { en: 'He will have learned to drive.', cn: '他将已经学会开车了。' },
+          { en: 'They will have opened the store.', cn: '他们将已经开了商店。' },
+          { en: 'I will have solved the problem.', cn: '我将已经解决了问题。' },
+          { en: 'She will have become a doctor.', cn: '她将已经成为医生了。' },
+          { en: 'We will have finished the race.', cn: '我们将已经完成了比赛。' },
+          { en: 'He will have taught for 20 years.', cn: '他将已经教了20年书了。' },
+          { en: 'They will have bought a house.', cn: '他们将已经买了房子。' },
+          { en: 'I will have understood the lesson.', cn: '我将已经理解了课程。' },
+          { en: 'She will have grown the flowers.', cn: '她将已经种好了花。' },
+          { en: 'We will have improved a lot.', cn: '我们将已经进步了很多。' },
+          { en: 'He will have achieved his dream.', cn: '他将已经实现了梦想。' },
+          { en: 'They will have visited all the museums.', cn: '他们将已经参观了所有博物馆。' },
+          { en: 'I will have made many friends.', cn: '我将已经交了很多朋友。' },
+          { en: 'She will have completed the course.', cn: '她将已经完成了课程。' },
+          { en: 'We will have celebrated together.', cn: '我们将已经一起庆祝了。' },
+          { en: 'He will have won the competition.', cn: '他将已经赢得了比赛。' }
+        ],
+        clue: 'Will 和收藏家 Have 一起合作：will have done。',
+        helperId: 'have'
+      },
+    }
+  };
+
+  // ---------------- 组件部分 ----------------
+
+  const HelperCard = ({ helper }) => (
+    _react2.default.createElement('div', { className: `p-6 rounded-3xl border-4 ${helper.borderColor} ${helper.color} shadow-lg flex flex-col items-center text-center transform transition hover:scale-105`,}
+      , _react2.default.createElement('div', { className: "bg-white p-4 rounded-full shadow-sm mb-4"    ,}
+        , helper.icon
+      )
+      , _react2.default.createElement('h3', { className: "text-xl font-bold text-gray-800 mb-1"   ,}, helper.name)
+      , _react2.default.createElement('p', { className: "text-sm text-gray-500 font-semibold mb-3"   ,}, helper.engName)
+      , _react2.default.createElement('p', { className: "text-gray-700 text-sm leading-relaxed mb-4"   ,}, helper.desc)
+      , _react2.default.createElement('div', { className: "flex gap-2 flex-wrap justify-center"   ,}
+        , helper.keywords.map(k => (
+          _react2.default.createElement('span', { key: k, className: "px-3 py-1 bg-white rounded-full text-xs font-bold text-gray-600 border border-gray-200"        ,}
+            , k
+          )
+        ))
+      )
+    )
+  );
+
+  // Helper function to randomly select 3 examples
+  const getRandomExamples = (examples, count = 3) => {
+    const shuffled = [...examples].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  };
+
+  const GridCell = ({ row, col }) => {
+    const cellKey = `${row.id}-${col.id}`;
+    const data = gridData.cells[cellKey];
+    const isSelected = selectedCell === cellKey;
+    
+    // Determine background color based on helper
+    let bgClass = 'bg-gray-50';
+    if (data.helperId === 'do') bgClass = isSelected ? 'bg-blue-200' : 'bg-blue-50 hover:bg-blue-100';
+    if (data.helperId === 'be') bgClass = isSelected ? 'bg-pink-200' : 'bg-pink-50 hover:bg-pink-100';
+    if (data.helperId === 'have') bgClass = isSelected ? 'bg-yellow-200' : 'bg-yellow-50 hover:bg-yellow-100';
+
+    const handleClick = () => {
+      setSelectedCell(cellKey);
+      // Generate random examples and store them
+      const randomExamples = getRandomExamples(data.examples, 3);
+      setSelectedExamples({ ...selectedExamples, [cellKey]: randomExamples });
+    };
+
+    return (
+      _react2.default.createElement('button', { 
+        onClick: handleClick,
+        className: `relative p-2 md:p-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center justify-center h-24 md:h-32 w-full
+          ${isSelected ? 'border-indigo-500 scale-105 shadow-md z-10' : 'border-transparent'}
+          ${bgClass}
+        `,}
+
+        , _react2.default.createElement('span', { className: "text-xs md:text-sm text-gray-500 mb-1 font-semibold"    ,}, data.engTense)
+        , _react2.default.createElement('span', { className: "text-sm md:text-lg font-bold text-gray-800 text-center leading-tight"     ,}, data.tense)
+        , isSelected && (
+          _react2.default.createElement('div', { className: "absolute -top-2 -right-2 bg-indigo-600 text-white rounded-full p-1"      ,}
+            , _react2.default.createElement(_lucidereact.CheckCircle2, { size: 12,} )
+          )
+        )
+      )
+    );
+  };
+
+  const DetailPanel = () => {
+    if (!selectedCell) return (
+      _react2.default.createElement('div', { className: "mt-8 p-8 bg-white rounded-3xl border-2 border-dashed border-gray-300 text-center text-gray-400"        ,}, "👆 点击上面的格子，看看会发生什么魔法！"
+
+      )
+    );
+
+    const data = gridData.cells[selectedCell];
+    const helper = helpers.find(h => h.id === data.helperId);
+
+    return (
+      _react2.default.createElement(_framermotion.motion.div, { 
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0 },
+        key: selectedCell,
+        className: "mt-8 bg-white rounded-3xl shadow-xl overflow-hidden border-2 border-indigo-100"      ,}
+
+        , _react2.default.createElement('div', { className: `h-2 w-full ${helper.color.replace('bg-', 'bg-').replace('100', '400')}`,})
+        , _react2.default.createElement('div', { className: "p-6 md:p-8 flex flex-col md:flex-row gap-6 items-start"      ,}
+          , _react2.default.createElement('div', { className: "flex-1",}
+            , _react2.default.createElement('div', { className: "flex items-center gap-3 mb-2"   ,}
+              , _react2.default.createElement('span', { className: `px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${helper.color} text-gray-700`,}
+                , data.engTense
+              )
+              , _react2.default.createElement('h2', { className: "text-2xl font-bold text-gray-800"  ,}, data.tense)
+            )
+
+            , _react2.default.createElement('div', { className: "bg-gray-50 rounded-2xl p-6 mb-4 border border-gray-100 space-y-4"     ,}
+              , (selectedExamples[selectedCell] || [{ en: data.sentence, cn: data.trans }]).map((ex, idx) => (
+                  _react2.default.createElement('div', { key: idx, className: idx > 0 ? "pt-4 border-t border-gray-200" : "" },
+                      _react2.default.createElement('p', { className: "text-2xl font-bold text-indigo-600 mb-1 font-serif"    ,}, "\"", ex.en, "\""),
+                      _react2.default.createElement('p', { className: "text-lg text-gray-600" ,}, ex.cn)
+                  )
+              ))
+            )
+
+            , _react2.default.createElement('div', { className: "flex items-start gap-3"  ,}
+              , _react2.default.createElement('div', { className: "mt-1 text-indigo-500" ,}
+                , _react2.default.createElement(_lucidereact.Star, { size: 20,} )
+              )
+              , _react2.default.createElement('p', { className: "text-gray-700 leading-relaxed" ,}, data.clue)
+            )
+          )
+
+          , _react2.default.createElement('div', { className: "w-full md:w-1/3 bg-gray-50 rounded-2xl p-4 flex flex-col items-center text-center border border-gray-100"          ,}
+            , _react2.default.createElement('span', { className: "text-xs font-bold text-gray-400 uppercase mb-2"    ,}, "本场兼职帮手")
+            , _react2.default.createElement('div', { className: "bg-white p-3 rounded-full shadow-sm mb-2"    ,}
+              , helper.icon
+            )
+            , _react2.default.createElement('p', { className: "font-bold text-gray-800" ,}, helper.name)
+            , _react2.default.createElement('p', { className: "text-xs text-gray-500 mt-1"  ,}, "\"", helper.desc.substring(0, 15), "...\"")
+          )
+        )
+      )
+    );
+  };
+
+  // ---------------- 主渲染 ----------------
+
+  return (
+    _react2.default.createElement('div', { className: "min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 md:p-8 font-sans"       ,}
+      , _react2.default.createElement('div', { className: "max-w-5xl mx-auto" ,}
+
+        /* Header */
+        , _react2.default.createElement('header', { className: "text-center mb-10" ,}
+          , _react2.default.createElement('h1', { className: "text-4xl md:text-5xl font-extrabold text-indigo-900 mb-4 tracking-tight"     ,}, "🏰 动词王国的"
+             , _react2.default.createElement('span', { className: "text-indigo-600",}, "魔法九宫格")
+          )
+          , _react2.default.createElement('p', { className: "text-lg text-gray-600 max-w-2xl mx-auto"   ,}, "欢迎来到动词王国！在这里，所有的事情都由三个神奇的“兼职小帮手”来管理。 快来认识他们吧！"
+
+
+          )
+        )
+
+        /* Navigation Tabs */
+        , _react2.default.createElement('div', { className: "flex justify-center gap-4 mb-8"   ,}
+          , _react2.default.createElement('button', { 
+            onClick: () => setActiveTab('helpers'),
+            className: `px-6 py-2 rounded-full font-bold transition-all ${activeTab === 'helpers' ? 'bg-indigo-600 text-white shadow-lg scale-105' : 'bg-white text-gray-600 hover:bg-gray-100'}`,}
+, "🦸‍♂️ 认识帮手"
+
+          )
+          , _react2.default.createElement('button', { 
+            onClick: () => setActiveTab('grid'),
+            className: `px-6 py-2 rounded-full font-bold transition-all ${activeTab === 'grid' ? 'bg-indigo-600 text-white shadow-lg scale-105' : 'bg-white text-gray-600 hover:bg-gray-100'}`,}
+, "🗺️ 魔法地图"
+
+          )
+        )
+
+        /* Content Area */
+        , _react2.default.createElement(_framermotion.AnimatePresence, { mode: "wait",}
+          , activeTab === 'helpers' && (
+            _react2.default.createElement(_framermotion.motion.div, { 
+              key: "helpers",
+              initial: { opacity: 0, x: -20 },
+              animate: { opacity: 1, x: 0 },
+              exit: { opacity: 0, x: 20 },
+              className: "grid md:grid-cols-3 gap-6"  ,}
+
+              , helpers.map(h => _react2.default.createElement(HelperCard, { key: h.id, helper: h,} ))
+            )
+          )
+
+          , activeTab === 'grid' && (
+            _react2.default.createElement(_framermotion.motion.div, { 
+              key: "grid",
+              initial: { opacity: 0, x: 20 },
+              animate: { opacity: 1, x: 0 },
+              exit: { opacity: 0, x: -20 },}
+
+              , _react2.default.createElement('div', { className: "bg-white rounded-3xl shadow-xl p-4 md:p-8 overflow-x-auto"     ,}
+                , _react2.default.createElement('div', { className: "min-w-[600px]",}
+                  /* Grid Header */
+                  , _react2.default.createElement('div', { className: "grid grid-cols-4 gap-4 mb-4"   ,}
+                    , _react2.default.createElement('div', { className: "flex items-end justify-center pb-2 font-bold text-gray-400 text-sm italic"       ,}, "状态 \\ 时间"
+
+                    )
+                    , gridData.cols.map(col => (
+                      _react2.default.createElement('div', { key: col.id, className: "flex flex-col items-center justify-center p-2 bg-indigo-50 rounded-xl text-indigo-900 font-bold"        ,}
+                        , _react2.default.createElement('span', { className: "text-2xl mb-1" ,}, col.icon)
+                        , col.name
+                      )
+                    ))
+                  )
+
+                  /* Grid Rows */
+                  , gridData.rows.map(row => (
+                    _react2.default.createElement('div', { key: row.id, className: "grid grid-cols-4 gap-4 mb-4"   ,}
+                      /* Row Header */
+                      , _react2.default.createElement('div', { className: "flex flex-col items-center justify-center p-2 bg-gray-100 rounded-xl font-bold text-gray-700"        ,}
+                        , _react2.default.createElement('div', { className: "mb-2 text-indigo-500" ,}, row.icon)
+                        , _react2.default.createElement('span', { className: "text-center",}, row.name)
+                      )
+                      /* Cells */
+                      , gridData.cols.map(col => (
+                        _react2.default.createElement(GridCell, { key: `${row.id}-${col.id}`, row: row, col: col,} )
+                      ))
+                    )
+                  ))
+                )
+              )
+
+              , _react2.default.createElement(DetailPanel, null )
+            )
+          )
+        )
+
+        /* Footer Note */
+        , _react2.default.createElement('div', { className: "mt-12 text-center bg-white/50 p-6 rounded-2xl border border-white"      ,}
+          , _react2.default.createElement('h3', { className: "font-bold text-indigo-900 mb-2"  ,}, "💡 老师的小口诀" )
+          , _react2.default.createElement('p', { className: "text-lg text-indigo-700 font-medium"  ,}, "\"进行需要 Be 加 ing，完成全靠 Have 帮忙，一般疑问请 Do 来，九宫格里岁月长！\""
+
+          )
+        )
+
+      )
+    )
+  );
+};
+
+exports. default = GrammarKingdom;
+</script></head>
+  <body>
+  
+
+<div id="preview-app"></div></body></html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pocket RPG</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Pocket RPG</h1>
+      <p class="subtitle">Single-file offline RPG. Arrow keys / WASD to move.</p>
+    </div>
+    <div class="actions">
+      <button id="reset">Reset run</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="canvas-wrap">
+      <canvas id="game" width="640" height="480" aria-label="RPG map"></canvas>
+      <p class="caption">Move into enemies to fight. Space: rest. F: drink potion.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Hero</h2>
+      <div id="stats"></div>
+      <div class="controls">
+        <button id="use-potion">Use potion (F)</button>
+        <button id="rest">Rest (Space)</button>
+      </div>
+
+      <h3>Quest</h3>
+      <p id="quest">Explore the forest, defeat the camp captain, and survive.</p>
+
+      <h3>Log</h3>
+      <ul id="log" class="log"></ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Works offline. Open this file in your browser to play.
+  </footer>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
+

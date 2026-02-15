@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Web Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loading-screen">
+        <h1>Minecraft Web</h1>
+        <p>Click to start</p>
+        <div class="controls-info">
+            <h3>Controls:</h3>
+            <p>WASD - Move</p>
+            <p>SPACE - Jump</p>
+            <p>Mouse - Look around</p>
+            <p>Left Click - Break block / Attack enemies</p>
+            <p>Right Click - Place block (works in mid-air!)</p>
+            <p>1-9 - Select hotbar slot</p>
+            <p>E - Open crafting menu</p>
+            <p>Q - Open shop (buy items)</p>
+            <p>F - Toggle flying mode</p>
+            <p>SHIFT - Fly down (when flying)</p>
+            <p>ESC - Release mouse</p>
+            <p style="color: #aaffaa; margin-top: 10px;">✨ Build freely! Place blocks anywhere in the air!</p>
+            <p style="color: #ff4444;">⚠️ Fight zombies & skeletons! Use swords for damage!</p>
+            <p style="color: #aaddff;">🛡️ Equip shields to block enemy attacks!</p>
+        </div>
+    </div>
+
+    <div id="crosshair"></div>
+    
+    <div id="hotbar">
+        <div class="hotbar-slot active" data-slot="0">
+            <div class="block-preview grass"></div>
+            <span class="item-count">∞</span>
+            <span class="slot-number">1</span>
+        </div>
+        <div class="hotbar-slot" data-slot="1">
+            <div class="block-preview dirt"></div>
+            <span class="item-count">∞</span>
+            <span class="slot-number">2</span>
+        </div>
+        <div class="hotbar-slot" data-slot="2">
+            <div class="block-preview stone"></div>
+            <span class="item-count">∞</span>
+            <span class="slot-number">3</span>
+        </div>
+        <div class="hotbar-slot" data-slot="3">
+            <div class="block-preview wood"></div>
+            <span class="item-count">∞</span>
+            <span class="slot-number">4</span>
+        </div>
+        <div class="hotbar-slot" data-slot="4">
+            <div class="block-preview leaves"></div>
+            <span class="item-count">∞</span>
+            <span class="slot-number">5</span>
+        </div>
+        <div class="hotbar-slot" data-slot="5">
+            <span class="item-count"></span>
+            <span class="slot-number">6</span>
+        </div>
+        <div class="hotbar-slot" data-slot="6">
+            <span class="item-count"></span>
+            <span class="slot-number">7</span>
+        </div>
+        <div class="hotbar-slot" data-slot="7">
+            <span class="item-count"></span>
+            <span class="slot-number">8</span>
+        </div>
+        <div class="hotbar-slot" data-slot="8">
+            <span class="item-count"></span>
+            <span class="slot-number">9</span>
+        </div>
+    </div>
+
+    <div id="crafting-menu" class="hidden">
+        <div class="crafting-container">
+            <h2>Crafting</h2>
+            <button id="close-crafting">✕</button>
+            <p style="color: #aaffaa; text-align: center; margin: 5px 0; font-size: 14px;">✨ Place items anywhere in the grid to craft!</p>
+            
+            <div class="crafting-content">
+                <div class="crafting-section">
+                    <h3>Crafting Grid</h3>
+                    <div class="crafting-grid">
+                        <div class="crafting-slot" data-craft-slot="0"></div>
+                        <div class="crafting-slot" data-craft-slot="1"></div>
+                        <div class="crafting-slot" data-craft-slot="2"></div>
+                        <div class="crafting-slot" data-craft-slot="3"></div>
+                        <div class="crafting-slot" data-craft-slot="4"></div>
+                        <div class="crafting-slot" data-craft-slot="5"></div>
+                        <div class="crafting-slot" data-craft-slot="6"></div>
+                        <div class="crafting-slot" data-craft-slot="7"></div>
+                        <div class="crafting-slot" data-craft-slot="8"></div>
+                    </div>
+                </div>
+                
+                <div class="arrow">→</div>
+                
+                <div class="crafting-section">
+                    <h3>Result</h3>
+                    <div class="crafting-result">
+                        <div class="crafting-slot result-slot" id="craft-result"></div>
+                        <button id="craft-button" disabled>Craft</button>
+                    </div>
+                </div>
+                
+                <div class="crafting-section recipes-section">
+                    <h3>Recipes (items can go anywhere!)</h3>
+                    <div class="recipe-list">
+                        <div class="recipe-item">
+                            <div class="recipe-ingredients">
+                                <div class="block-preview wood small"></div>
+                            </div>
+                            <span class="recipe-arrow">→</span>
+                            <div class="recipe-result">
+                                <div class="block-preview planks small"></div>
+                                <span>Planks (x4)</span>
+                            </div>
+                        </div>
+                        <div class="recipe-item">
+                            <div class="recipe-ingredients">
+                                <div class="block-preview wood small"></div>
+                                <span>+</span>
+                                <div class="block-preview wood small"></div>
+                            </div>
+                            <span class="recipe-arrow">→</span>
+                            <div class="recipe-result">
+                                <div class="item-preview stick small"></div>
+                                <span>Sticks (x4)</span>
+                            </div>
+                        </div>
+                        <div class="recipe-item">
+                            <div class="recipe-ingredients">
+                                <div class="item-preview stick small"></div>
+                                <span>+</span>
+                                <div class="block-preview planks small"></div>
+                                <span>+</span>
+                                <div class="item-preview stick small"></div>
+                            </div>
+                            <span class="recipe-arrow">→</span>
+                            <div class="recipe-result">
+                                <div class="block-preview fence small"></div>
+                                <span>Fence (x3)</span>
+                            </div>
+                        </div>
+                        <div class="recipe-item">
+                            <div class="recipe-ingredients">
+                                <div class="block-preview planks small"></div>
+                                <span>+</span>
+                                <div class="item-preview stick small"></div>
+                            </div>
+                            <span class="recipe-arrow">→</span>
+                            <div class="recipe-result">
+                                <div class="tool-preview wooden-sword small"></div>
+                                <span>Wooden Sword</span>
+                            </div>
+                        </div>
+                        <div class="recipe-item">
+                            <div class="recipe-ingredients">
+                                <div class="block-preview planks small"></div>
+                                <span>×3 +</span>
+                                <div class="item-preview stick small"></div>
+                                <span>×2</span>
+                            </div>
+                            <span class="recipe-arrow">→</span>
+                            <div class="recipe-result">
+                                <div class="tool-preview wooden-pickaxe small"></div>
+                                <span>Wooden Pickaxe</span>
+                            </div>
+                        </div>
+                        <div class="recipe-item">
+                            <div class="recipe-ingredients">
+                                <div class="block-preview planks small"></div>
+                                <span>×3 +</span>
+                                <div class="item-preview stick small"></div>
+                                <span>×2</span>
+                            </div>
+                            <span class="recipe-arrow">→</span>
+                            <div class="recipe-result">
+                                <div class="tool-preview wooden-axe small"></div>
+                                <span>Wooden Axe</span>
+                            </div>
+                        </div>
+                        <div class="recipe-item">
+                            <div class="recipe-ingredients">
+                                <div class="block-preview planks small"></div>
+                                <span>+</span>
+                                <div class="item-preview stick small"></div>
+                            </div>
+                            <span class="recipe-arrow">→</span>
+                            <div class="recipe-result">
+                                <div class="tool-preview wooden-shovel small"></div>
+                                <span>Wooden Shovel</span>
+                            </div>
+                        </div>
+                        <div class="recipe-item">
+                            <div class="recipe-ingredients">
+                                <div class="block-preview stone small"></div>
+                                <span>+</span>
+                                <div class="item-preview stick small"></div>
+                            </div>
+                            <span class="recipe-arrow">→</span>
+                            <div class="recipe-result">
+                                <div class="tool-preview stone-sword small"></div>
+                                <span>Stone Sword</span>
+                            </div>
+                        </div>
+                        <div class="recipe-item">
+                            <div class="recipe-ingredients">
+                                <div class="block-preview stone small"></div>
+                                <span>×3 +</span>
+                                <div class="item-preview stick small"></div>
+                                <span>×2</span>
+                            </div>
+                            <span class="recipe-arrow">→</span>
+                            <div class="recipe-result">
+                                <div class="tool-preview stone-pickaxe small"></div>
+                                <span>Stone Pickaxe</span>
+                            </div>
+                        </div>
+                        <div class="recipe-item">
+                            <div class="recipe-ingredients">
+                                <div class="block-preview stone small"></div>
+                                <span>×3 +</span>
+                                <div class="item-preview stick small"></div>
+                                <span>×2</span>
+                            </div>
+                            <span class="recipe-arrow">→</span>
+                            <div class="recipe-result">
+                                <div class="tool-preview stone-axe small"></div>
+                                <span>Stone Axe</span>
+                            </div>
+                        </div>
+                        <div class="recipe-item">
+                            <div class="recipe-ingredients">
+                                <div class="block-preview stone small"></div>
+                                <span>+</span>
+                                <div class="item-preview stick small"></div>
+                            </div>
+                            <span class="recipe-arrow">→</span>
+                            <div class="recipe-result">
+                                <div class="tool-preview stone-shovel small"></div>
+                                <span>Stone Shovel</span>
+                            </div>
+                        </div>
+                        <div class="recipe-item">
+                            <div class="recipe-ingredients">
+                                <div class="block-preview planks small"></div>
+                                <span>×4</span>
+                            </div>
+                            <span class="recipe-arrow">→</span>
+                            <div class="recipe-result">
+                                <div class="tool-preview wooden-shield small"></div>
+                                <span>Wooden Shield (50% dmg block)</span>
+                            </div>
+                        </div>
+                        <div class="recipe-item">
+                            <div class="recipe-ingredients">
+                                <div class="block-preview stone small"></div>
+                                <span>×4</span>
+                            </div>
+                            <span class="recipe-arrow">→</span>
+                            <div class="recipe-result">
+                                <div class="tool-preview stone-shield small"></div>
+                                <span>Stone Shield (70% dmg block)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="inventory-section">
+                <h3>Inventory</h3>
+                <div id="inventory-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="shop-menu" class="hidden">
+        <div class="shop-container">
+            <h2>🏪 Shop</h2>
+            <button id="close-shop">✕</button>
+            
+            <div class="shop-balance">
+                <p>Your Balance: <span id="shop-coin-balance">50</span> 💰</p>
+            </div>
+            
+            <div class="shop-items">
+                <div class="shop-category">
+                    <h3>Blocks</h3>
+                    <div class="shop-item">
+                        <div class="block-preview planks"></div>
+                        <span class="item-name">Planks</span>
+                        <span class="item-price">5 💰</span>
+                        <button class="buy-button" data-item="111" data-cost="5">Buy</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="block-preview stone"></div>
+                        <span class="item-name">Stone</span>
+                        <span class="item-price">3 💰</span>
+                        <button class="buy-button" data-item="3" data-cost="3">Buy</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="block-preview wood"></div>
+                        <span class="item-name">Wood</span>
+                        <span class="item-price">4 💰</span>
+                        <button class="buy-button" data-item="4" data-cost="4">Buy</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="block-preview fence"></div>
+                        <span class="item-name">Fence</span>
+                        <span class="item-price">6 💰</span>
+                        <button class="buy-button" data-item="7" data-cost="6">Buy</button>
+                    </div>
+                </div>
+                
+                <div class="shop-category">
+                    <h3>Materials</h3>
+                    <div class="shop-item">
+                        <div class="item-preview stick"></div>
+                        <span class="item-name">Stick</span>
+                        <span class="item-price">2 💰</span>
+                        <button class="buy-button" data-item="110" data-cost="2">Buy</button>
+                    </div>
+                </div>
+                
+                <div class="shop-category">
+                    <h3>Wooden Tools</h3>
+                    <div class="shop-item">
+                        <div class="tool-preview wooden-sword"></div>
+                        <span class="item-name">Wooden Sword</span>
+                        <span class="item-price">10 💰</span>
+                        <button class="buy-button" data-item="100" data-cost="10">Buy</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="tool-preview wooden-pickaxe"></div>
+                        <span class="item-name">Wooden Pickaxe</span>
+                        <span class="item-price">12 💰</span>
+                        <button class="buy-button" data-item="102" data-cost="12">Buy</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="tool-preview wooden-axe"></div>
+                        <span class="item-name">Wooden Axe</span>
+                        <span class="item-price">12 💰</span>
+                        <button class="buy-button" data-item="104" data-cost="12">Buy</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="tool-preview wooden-shovel"></div>
+                        <span class="item-name">Wooden Shovel</span>
+                        <span class="item-price">8 💰</span>
+                        <button class="buy-button" data-item="106" data-cost="8">Buy</button>
+                    </div>
+                </div>
+                
+                <div class="shop-category">
+                    <h3>Stone Tools</h3>
+                    <div class="shop-item">
+                        <div class="tool-preview stone-sword"></div>
+                        <span class="item-name">Stone Sword</span>
+                        <span class="item-price">20 💰</span>
+                        <button class="buy-button" data-item="101" data-cost="20">Buy</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="tool-preview stone-pickaxe"></div>
+                        <span class="item-name">Stone Pickaxe</span>
+                        <span class="item-price">25 💰</span>
+                        <button class="buy-button" data-item="103" data-cost="25">Buy</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="tool-preview stone-axe"></div>
+                        <span class="item-name">Stone Axe</span>
+                        <span class="item-price">25 💰</span>
+                        <button class="buy-button" data-item="105" data-cost="25">Buy</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="tool-preview stone-shovel"></div>
+                        <span class="item-name">Stone Shovel</span>
+                        <span class="item-price">18 💰</span>
+                        <button class="buy-button" data-item="107" data-cost="18">Buy</button>
+                    </div>
+                </div>
+                
+                <div class="shop-category">
+                    <h3>🛡️ Shields - Defense Items</h3>
+                    <div class="shop-item">
+                        <div class="tool-preview wooden-shield"></div>
+                        <span class="item-name">Wooden Shield</span>
+                        <span class="item-price">30 💰</span>
+                        <button class="buy-button" data-item="108" data-cost="30">Buy</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="tool-preview stone-shield"></div>
+                        <span class="item-name">Stone Shield</span>
+                        <span class="item-price">50 💰</span>
+                        <button class="buy-button" data-item="109" data-cost="50">Buy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="info">
+        <p>FPS: <span id="fps">60</span></p>
+        <p>Position: <span id="position">0, 0, 0</span></p>
+        <p class="coin-display">💰 Found: <span id="coin-counter">0/0</span></p>
+        <p class="coin-display">💰 Balance: <span id="coin-balance">50</span></p>
+        <div class="health-display">
+            <p>❤️ Health: <span id="health-text">100/100</span></p>
+            <div class="health-bar-container">
+                <div id="health-bar" class="health-bar"></div>
+            </div>
+        </div>
+        <p id="fly-indicator" style="display: none;">✈️ Flying Mode</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
+

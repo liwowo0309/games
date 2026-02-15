@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星际快递员：进制大挪移</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #e67e22;
+            --bg: #2c3e50;
+            --panel: #ecf0f1;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: #333;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: white;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .game-container {
+            background: white;
+            width: 90%;
+            max-width: 900px;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        /* Stages */
+        .stage {
+            border: 2px dashed #bdc3c7;
+            border-radius: 15px;
+            padding: 20px;
+            background: #f9f9f9;
+            transition: all 0.3s;
+        }
+        .stage.active {
+            border-color: var(--primary);
+            background: #eaf2f8;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.2);
+        }
+        .stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .stage-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .base-badge {
+            background: var(--primary);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        /* Visualization */
+        .cargo-area {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 20px;
+            min-height: 120px;
+            padding: 10px;
+        }
+        .place-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .place-label {
+            font-family: 'Courier New', monospace;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        .box-container {
+            display: flex;
+            flex-direction: column-reverse; /* Stack from bottom */
+            gap: 5px;
+        }
+        .cargo-box {
+            width: 50px;
+            height: 50px;
+            background: var(--secondary);
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        .cargo-box:hover {
+            transform: scale(1.05);
+        }
+        .cargo-box.unpacked {
+            background: #27ae60;
+        }
+        
+        /* Dots inside boxes */
+        .dots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(8px, 1fr));
+            gap: 2px;
+            width: 80%;
+            height: 80%;
+            place-items: center;
+        }
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 50%;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #95a5a6;
+            color: white;
+            transition: 0.2s;
+        }
+        button.primary {
+            background: var(--primary);
+        }
+        button.primary:hover {
+            background: #2980b9;
+        }
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        /* Code Log */
+        .code-log {
+            background: #2d3436;
+            color: #00cec9;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            border-left: 5px solid #00b894;
+        }
+        .code-comment { color: #636e72; }
+        .code-var { color: #a29bfe; }
+        .code-val { color: #ffeaa7; }
+
+        /* Central Pile */
+        .central-pile {
+            text-align: center;
+            padding: 20px;
+            background: #fff3cd;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: none;
+        }
+        .pile-count {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #d35400;
+        }
+
+        /* Target Slots */
+        .slot {
+            width: 60px;
+            height: 60px;
+            border: 3px dashed #bdc3c7;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .slot:hover {
+            border-color: var(--primary);
+            background: #eaf2f8;
+        }
+        .slot.filled {
+            background: var(--secondary);
+            border-style: solid;
+            border-color: #d35400;
+        }
+        .slot-capacity {
+            position: absolute;
+            bottom: -25px;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        .nav-btn {
+            margin-top: 20px;
+            background: #8e44ad;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🚀 星际快递员 (Base Converter)</h1>
+
+<div class="game-container">
+    
+    <!-- Level Info -->
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <strong>当前任务:</strong> <span id="missionText">把 5 进制的货物运到 2 进制星球</span>
+        </div>
+        <div>
+            得分: <span id="score" style="color: var(--secondary); font-weight: bold;">0</span>
+        </div>
+    </div>
+
+    <!-- Step 1: Source Planet -->
+    <div id="stage1" class="stage active">
+        <div class="stage-header">
+            <span class="stage-title">🪐 出发地: <span id="sourceBaseName">5进制星球</span></span>
+            <span class="base-badge" id="sourceBaseBadge">Base 5</span>
+        </div>
+        <p>点击所有箱子把它们拆开，算出货物的总数量！</p>
+        
+        <div class="cargo-area" id="sourceCargo">
+            <!-- Generated by JS -->
+        </div>
+
+        <div class="controls">
+            <input type="number" id="totalInput" placeholder="总数是多少?" style="padding: 10px; width: 100px; text-align: center; font-size: 1.2rem;">
+            <button class="primary" onclick="checkTotal()">确认拆包</button>
+        </div>
+    </div>
+
+    <!-- The Transfer Area (Decimal) -->
+    <div id="centralPile" class="central-pile">
+        <div>📦 散装货物总数 (十进制)</div>
+        <div class="pile-count" id="pileCount">0</div>
+        <div style="font-size: 0.9rem; color: #7f8c8d;">现在我们需要把这些货物重新打包！</div>
+    </div>
+
+    <!-- Step 2: Target Planet -->
+    <div id="stage2" class="stage" style="opacity: 0.5; pointer-events: none;">
+        <div class="stage-header">
+            <span class="stage-title">🚀 目的地: <span id="targetBaseName">2进制星球</span></span>
+            <span class="base-badge" id="targetBaseBadge">Base 2</span>
+        </div>
+        <p>点击下方的空箱子，把剩余的货物装进去（从大到小装）！</p>
+        
+        <div style="text-align: center; margin-bottom: 10px;">
+            剩余货物: <strong id="remainingCargo" style="color: #e74c3c; font-size: 1.5rem;">0</strong>
+        </div>
+
+        <div class="cargo-area" id="targetSlots">
+            <!-- Generated by JS -->
+        </div>
+        
+        <div class="controls">
+            <button class="primary" onclick="checkFinal()">完成打包</button>
+        </div>
+    </div>
+
+    <!-- C++ Code View -->
+    <div class="code-log" id="codeLog">
+        <div class="code-comment">// 飞船日志 (C++ 核心逻辑)</div>
+        <div id="codeContent">等待任务开始...</div>
+    </div>
+
+    <button class="nav-btn" onclick="nextLevel()" id="nextBtn" style="display: none;">下一关</button>
+
+</div>
+
+<script>
+    // Game State
+    let level = 1;
+    let score = 0;
+    let sourceBase = 5;
+    let targetBase = 2;
+    let currentNumber = 0; // The true decimal value
+    let sourceDigits = []; // [1, 2] means 12 in base 5
+    
+    // UI State
+    let unpackedCount = 0;
+    let remainingForPacking = 0;
+    let targetSlotsState = []; // Stores capacity of each slot
+
+    const missions = [
+        { s: 5, t: 2, range: [5, 15] }, // Easy: 5 -> 2
+        { s: 4, t: 2, range: [5, 15] }, // Easy: 4 -> 2
+        { s: 3, t: 10, range: [5, 20] }, // Base to Decimal
+        { s: 10, t: 2, range: [10, 31] }, // Decimal to Binary
+        { s: 6, t: 3, range: [10, 30] }, // Harder
+        { s: 8, t: 2, range: [10, 63] }, // Octal to Binary
+    ];
+
+    function initGame() {
+        loadLevel();
+    }
+
+    function loadLevel() {
+        const mission = missions[(level - 1) % missions.length];
+        sourceBase = mission.s;
+        targetBase = mission.t;
+        
+        // Generate random number
+        const min = mission.range[0];
+        const max = mission.range[1];
+        currentNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+        
+        // Calculate digits for source base
+        sourceDigits = [];
+        let temp = currentNumber;
+        while (temp > 0) {
+            sourceDigits.unshift(temp % sourceBase);
+            temp = Math.floor(temp / sourceBase);
+        }
+
+        // Update UI Text
+        document.getElementById('missionText').innerText = `把 ${sourceBase} 进制的货物运到 ${targetBase} 进制星球`;
+        document.getElementById('sourceBaseName').innerText = `${sourceBase}进制星球`;
+        document.getElementById('sourceBaseBadge').innerText = `Base ${sourceBase}`;
+        document.getElementById('targetBaseName').innerText = `${targetBase}进制星球`;
+        document.getElementById('targetBaseBadge').innerText = `Base ${targetBase}`;
+        
+        document.getElementById('totalInput').value = '';
+        document.getElementById('centralPile').style.display = 'none';
+        document.getElementById('stage2').style.opacity = '0.5';
+        document.getElementById('stage2').style.pointerEvents = 'none';
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('codeContent').innerHTML = `// 准备接收货物...<br>int sourceBase = ${sourceBase};<br>int targetBase = ${targetBase};`;
+
+        renderSourceCargo();
+    }
+
+    function renderSourceCargo() {
+        const container = document.getElementById('sourceCargo');
+        container.innerHTML = '';
+
+        // Iterate through digits (e.g., [2, 3] for Base 5)
+        // High power is at index 0
+        for (let i = 0; i < sourceDigits.length; i++) {
+            const power = sourceDigits.length - 1 - i;
+            const placeValue = Math.pow(sourceBase, power);
+            const digit = sourceDigits[i];
+
+            const col = document.createElement('div');
+            col.className = 'place-column';
+
+            const boxContainer = document.createElement('div');
+            boxContainer.className = 'box-container';
+
+            // Create boxes for this digit
+            for (let j = 0; j < digit; j++) {
+                const box = document.createElement('div');
+                box.className = 'cargo-box';
+                box.title = `点击拆包 (包含 ${placeValue} 个)`;
+                box.onclick = () => unpackBox(box, placeValue);
+                
+                // Draw dots inside
+                const dotsGrid = document.createElement('div');
+                dotsGrid.className = 'dots-grid';
+                // Only draw a few dots to represent "many" if it's large
+                const dotsToShow = Math.min(placeValue, 9); 
+                for(let k=0; k<dotsToShow; k++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'dot';
+                    dotsGrid.appendChild(dot);
+                }
+                box.appendChild(dotsGrid);
+                
+                // Label overlay
+                const label = document.createElement('div');
+                label.style.position = 'absolute';
+                label.style.color = '#333';
+                label.style.background = 'rgba(255,255,255,0.9)';
+                label.style.padding = '2px 5px';
+                label.style.borderRadius = '4px';
+                label.innerText = placeValue;
+                box.appendChild(label);
+
+                boxContainer.appendChild(box);
+            }
+
+            col.appendChild(boxContainer);
+            
+            const label = document.createElement('div');
+            label.className = 'place-label';
+            label.innerText = `x${placeValue}`; // e.g., x5, x1
+            col.appendChild(label);
+
+            container.appendChild(col);
+        }
+    }
+
+    function unpackBox(element, value) {
+        if (element.classList.contains('unpacked')) return;
+        
+        element.classList.add('unpacked');
+        element.style.transform = 'scale(0.9) rotate(5deg)';
+        element.style.background = '#bdc3c7';
+        element.style.cursor = 'default';
+        
+        // Add code log
+        const log = document.getElementById('codeContent');
+        log.innerHTML += `<br>total += ${value}; <span class="code-comment">// 拆开一个箱子</span>`;
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function checkTotal() {
+        const userTotal = parseInt(document.getElementById('totalInput').value);
+        
+        if (userTotal === currentNumber) {
+            // Success Stage 1
+            document.getElementById('centralPile').style.display = 'block';
+            document.getElementById('pileCount').innerText = currentNumber;
+            
+            // Log
+            const log = document.getElementById('codeContent');
+            log.innerHTML += `<br><span class="code-var">int</span> decimalValue = ${currentNumber}; <span class="code-comment">// 拆包完成!</span>`;
+            
+            // Activate Stage 2
+            initStage2();
+        } else {
+            alert(`不对哦！\n提示：把所有箱子里的货物加起来。\n比如 5进制的 "12" 是 1个5 和 2个1，等于 7。`);
+        }
+    }
+
+    function initStage2() {
+        const stage2 = document.getElementById('stage2');
+        stage2.style.opacity = '1';
+        stage2.style.pointerEvents = 'all';
+        stage2.scrollIntoView({ behavior: 'smooth' });
+
+        remainingForPacking = currentNumber;
+        document.getElementById('remainingCargo').innerText = remainingForPacking;
+
+        // Calculate needed slots for Target Base
+        // e.g. Target 2, Number 13 -> 1101 -> Need slots 8, 4, 2, 1
+        let maxPower = 0;
+        while (Math.pow(targetBase, maxPower + 1) <= currentNumber) {
+            maxPower++;
+        }
+        // Always show at least power 0
+        if (currentNumber === 0) maxPower = 0;
+
+        const container = document.getElementById('targetSlots');
+        container.innerHTML = '';
+        targetSlotsState = [];
+
+        for (let i = maxPower; i >= 0; i--) {
+            const capacity = Math.pow(targetBase, i);
+            
+            const col = document.createElement('div');
+            col.className = 'place-column';
+
+            const slot = document.createElement('div');
+            slot.className = 'slot';
+            slot.onclick = () => fillSlot(slot, capacity, i);
+            slot.id = `slot-${i}`;
+            
+            const capLabel = document.createElement('div');
+            capLabel.innerText = capacity;
+            capLabel.style.fontWeight = 'bold';
+            capLabel.style.fontSize = '1.2rem';
+            capLabel.style.color = '#bdc3c7';
+            slot.appendChild(capLabel);
+
+            const label = document.createElement('div');
+            label.className = 'slot-capacity';
+            label.innerText = `容量: ${capacity}`;
+            slot.appendChild(label);
+
+            col.appendChild(slot);
+            container.appendChild(col);
+
+            targetSlotsState.push({
+                power: i,
+                capacity: capacity,
+                filledCount: 0,
+                element: slot
+            });
+        }
+    }
+
+    function fillSlot(element, capacity, power) {
+        // Find the state object
+        const slotState = targetSlotsState.find(s => s.power === power);
+        
+        // Can we fill it?
+        // In this game, we fill "one capacity unit" at a time.
+        // But for base conversion, a slot can hold up to (Base-1) boxes.
+        // e.g. Base 10, the "10s" place can hold 9 boxes of 10.
+        
+        if (slotState.filledCount >= targetBase - 1) {
+            alert(`这个位置满了！${targetBase}进制每一位最多只能放 ${targetBase-1} 个箱子。`);
+            return;
+        }
+
+        if (remainingForPacking >= capacity) {
+            remainingForPacking -= capacity;
+            slotState.filledCount++;
+            document.getElementById('remainingCargo').innerText = remainingForPacking;
+
+            // Visual update
+            // Add a mini box inside the slot
+            const miniBox = document.createElement('div');
+            miniBox.style.width = '100%';
+            miniBox.style.height = '10px';
+            miniBox.style.background = '#e67e22';
+            miniBox.style.marginBottom = '2px';
+            miniBox.style.borderRadius = '2px';
+            element.appendChild(miniBox);
+            element.style.borderColor = '#e67e22';
+
+            // Code Log
+            const log = document.getElementById('codeContent');
+            log.innerHTML += `<br><span class="code-comment">// 装入容量 ${capacity} 的箱子</span>`;
+            log.innerHTML += `<br>remaining = ${remainingForPacking};`;
+            log.scrollTop = log.scrollHeight;
+
+        } else {
+            alert("剩余货物不够装这个大箱子了！试试小一点的。");
+        }
+    }
+
+    function checkFinal() {
+        if (remainingForPacking === 0) {
+            score += 100;
+            document.getElementById('score').innerText = score;
+            document.getElementById('nextBtn').style.display = 'block';
+            
+            // Construct result string
+            let resultStr = "";
+            targetSlotsState.forEach(s => {
+                resultStr += s.filledCount;
+            });
+
+            const log = document.getElementById('codeContent');
+            log.innerHTML += `<br><span class="code-comment">// 打包完成!</span>`;
+            log.innerHTML += `<br><span class="code-var">string</span> result = "${resultStr}";`;
+            log.scrollTop = log.scrollHeight;
+
+            alert(`恭喜！任务完成！\n${sourceBase}进制的货物已成功转换为${targetBase}进制：${resultStr}`);
+        } else {
+            alert("还有货物没装完呢！必须把所有货物都装进箱子。");
+        }
+    }
+
+    function nextLevel() {
+        level++;
+        loadLevel();
+    }
+
+    // Start
+    initGame();
+
+</script>
+
+</body>
+</html>

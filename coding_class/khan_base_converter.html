@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>进制转换实验室 - Khan Style</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Noto+Serif:ital,wght@1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --khan-blue: #1865f2;
+            --khan-blue-hover: #0b4ebf;
+            --khan-green: #00a60e;
+            --khan-bg: #f7f8fa;
+            --text-color: #333;
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--khan-bg);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            width: 100%;
+            background: white;
+            border-bottom: 1px solid #ccc;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #21242c;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Main Canvas */
+        .main-stage {
+            background: white;
+            width: 90%;
+            max-width: 800px;
+            margin-top: 30px;
+            border: 1px solid #d6d8da;
+            border-radius: 4px; /* Khan style is slightly boxy */
+            padding: 40px;
+            min-height: 400px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Progress Steps */
+        .step-indicator {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+        .step {
+            padding-bottom: 5px;
+            border-bottom: 3px solid transparent;
+        }
+        .step.active {
+            color: var(--khan-blue);
+            border-bottom-color: var(--khan-blue);
+            font-weight: bold;
+        }
+
+        /* Visual Elements */
+        .math-text {
+            font-family: 'Noto Serif', serif;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .group-container {
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            min-height: 150px;
+        }
+
+        .number-group {
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            padding: 5px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, 12px);
+            gap: 4px;
+            width: 60px; /* Base width */
+            justify-content: center;
+            align-content: end;
+            background: #f9f9f9;
+            transition: all 0.5s ease;
+            position: relative;
+        }
+        
+        .number-group.broken {
+            border-color: transparent;
+            background: transparent;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--khan-blue);
+            border-radius: 50%;
+            display: inline-block;
+            transition: all 0.5s ease;
+        }
+        
+        .dot.processed {
+            background-color: var(--khan-green);
+        }
+
+        .group-label {
+            position: absolute;
+            bottom: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-family: 'Noto Serif', serif;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Buckets for Target Base */
+        .bucket {
+            border: 3px dashed #bbb;
+            border-radius: 10px;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .bucket:hover {
+            border-color: var(--khan-blue);
+            background: #f0f7ff;
+        }
+        .bucket.filled {
+            border-style: solid;
+            border-color: var(--khan-blue);
+            background: #e6f2ff;
+        }
+        .bucket-val {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #555;
+        }
+        .bucket-capacity {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* Controls */
+        .action-btn {
+            background-color: var(--khan-blue);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 0 #0b4ebf;
+            transition: transform 0.1s;
+        }
+        .action-btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+        .action-btn:disabled {
+            background-color: #ccc;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Explanation Box */
+        .explanation {
+            margin-top: 30px;
+            background: #fff8e1; /* Light yellow note */
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            max-width: 600px;
+        }
+        .code-snippet {
+            font-family: 'Courier New', monospace;
+            background: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+            color: #d63031;
+        }
+
+        /* Animations */
+        @keyframes pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .pop-in {
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>进制转换实验室</h1>
+    <div class="subtitle">像计算机一样思考：拆解与重组</div>
+</header>
+
+<div class="main-stage">
+    
+    <!-- Progress Header -->
+    <div class="step-indicator">
+        <div class="step active" id="step1Indicator">1. 理解原数字</div>
+        <div class="step" id="step2Indicator">2. 拆解 (转十进制)</div>
+        <div class="step" id="step3Indicator">3. 重组 (转目标进制)</div>
+    </div>
+
+    <!-- Dynamic Content Area -->
+    <div id="gameArea" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        
+        <!-- Text Prompt -->
+        <h2 id="instructionText" style="margin-bottom: 30px; color: #444;"></h2>
+
+        <!-- Visualization Container -->
+        <div class="group-container" id="visualContainer"></div>
+
+        <!-- Math Display -->
+        <div class="math-text" id="mathDisplay"></div>
+
+        <!-- Controls -->
+        <div style="margin-top: 20px;">
+            <button class="action-btn" id="mainBtn" onclick="handleAction()">开始</button>
+        </div>
+
+        <!-- Educational Note -->
+        <div class="explanation" id="explanationBox" style="display:none;">
+            <strong>💡 编程原理:</strong> <span id="explanationText"></span>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Game State
+    const state = {
+        phase: 0, // 0: Intro, 1: Decompose, 2: Recompose
+        sourceBase: 4,
+        targetBase: 2,
+        numberVal: 11, // Decimal value (e.g., 11 is "23" in base 4)
+        sourceDigits: [], // Will be [2, 3] for 11 in base 4
+        currentDots: 0, // Loose dots during transition
+        targetSlots: []
+    };
+
+    // DOM Elements
+    const els = {
+        instruction: document.getElementById('instructionText'),
+        container: document.getElementById('visualContainer'),
+        math: document.getElementById('mathDisplay'),
+        btn: document.getElementById('mainBtn'),
+        expBox: document.getElementById('explanationBox'),
+        expText: document.getElementById('explanationText'),
+        s1: document.getElementById('step1Indicator'),
+        s2: document.getElementById('step2Indicator'),
+        s3: document.getElementById('step3Indicator')
+    };
+
+    function init() {
+        // Randomize a bit
+        state.sourceBase = 4;
+        state.targetBase = 2;
+        state.numberVal = Math.floor(Math.random() * 10) + 6; // Random between 6 and 15
+        
+        // Calculate source digits
+        state.sourceDigits = [];
+        let temp = state.numberVal;
+        while (temp > 0) {
+            state.sourceDigits.unshift(temp % state.sourceBase);
+            temp = Math.floor(temp / state.sourceBase);
+        }
+
+        setupPhase1();
+    }
+
+    // --- Phase 1: Visualization ---
+    function setupPhase1() {
+        state.phase = 1;
+        updateSteps(1);
+        
+        els.instruction.innerText = `当前数字: ${state.sourceBase}进制下的 "${state.sourceDigits.join('')}"`;
+        els.math.innerHTML = `${state.sourceDigits.join('')}<sub>${state.sourceBase}</sub>`;
+        els.btn.innerText = "拆解它们！";
+        
+        els.expBox.style.display = 'block';
+        els.expText.innerHTML = `在 ${state.sourceBase} 进制中，每一位代表 ${state.sourceBase} 的不同次方。就像我们打包货物一样，有的包里有 ${state.sourceBase} 个，有的只有 1 个。`;
+
+        renderGroups();
+    }
+
+    function renderGroups() {
+        els.container.innerHTML = '';
+        
+        // Render from highest power to lowest
+        state.sourceDigits.forEach((digit, index) => {
+            const power = state.sourceDigits.length - 1 - index;
+            const groupSize = Math.pow(state.sourceBase, power);
+            
+            // Create a column for this place value
+            const col = document.createElement('div');
+            col.style.display = 'flex';
+            col.style.flexDirection = 'column';
+            col.style.alignItems = 'center';
+            col.style.margin = '0 10px';
+
+            // Create groups (boxes)
+            for(let i=0; i<digit; i++) {
+                const group = document.createElement('div');
+                group.className = 'number-group pop-in';
+                
+                // Add dots to group
+                for(let j=0; j<groupSize; j++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'dot';
+                    group.appendChild(dot);
+                }
+                
+                col.appendChild(group);
+            }
+
+            // Label
+            const label = document.createElement('div');
+            label.innerText = `每组 ${groupSize} 个`;
+            label.style.marginTop = '10px';
+            label.style.fontSize = '0.8rem';
+            label.style.color = '#888';
+            col.appendChild(label);
+
+            els.container.appendChild(col);
+        });
+    }
+
+    // --- Phase 2: Decomposition ---
+    function triggerDecompose() {
+        state.phase = 2;
+        updateSteps(2);
+        
+        els.instruction.innerText = "正在把所有分组拆散成单个圆点...";
+        els.btn.disabled = true;
+        els.btn.innerText = "拆解中...";
+
+        // Visual effect: Remove borders, float dots
+        const groups = document.querySelectorAll('.number-group');
+        groups.forEach(g => {
+            g.classList.add('broken');
+        });
+
+        // After animation, show total
+        setTimeout(() => {
+            els.container.innerHTML = '';
+            
+            // Render all loose dots
+            for(let i=0; i<state.numberVal; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot pop-in';
+                dot.style.margin = '5px';
+                els.container.appendChild(dot);
+            }
+            els.container.style.flexWrap = 'wrap';
+
+            els.math.innerHTML = `= ${state.numberVal} <sub>10</sub>`;
+            els.instruction.innerText = `现在我们有 ${state.numberVal} 个散落的圆点 (这就是十进制)`;
+            
+            els.expText.innerHTML = `这就是 <code>int value = ...</code> 在计算机里的真实样子。无论它是几进制，它的本质就是这 ${state.numberVal} 个点。`;
+            
+            els.btn.disabled = false;
+            els.btn.innerText = `准备重组为 ${state.targetBase} 进制`;
+            els.btn.onclick = setupPhase3;
+        }, 1000);
+    }
+
+    // --- Phase 3: Recomposition ---
+    function setupPhase3() {
+        state.phase = 3;
+        updateSteps(3);
+        state.currentDots = state.numberVal;
+
+        els.instruction.innerText = `目标：把 ${state.numberVal} 个点装进 ${state.targetBase} 进制的容器里`;
+        els.math.innerHTML = `? <sub>${state.targetBase}</sub>`;
+        els.btn.style.display = 'none'; // Hide main button, use interactive buckets
+
+        els.expText.innerHTML = `贪心算法 (Greedy Algorithm)：总是尝试用最大的容器去装。如果在 C++ 里，我们通常用 <code>value % 2</code> (取余数) 或者循环减法来实现。`;
+
+        renderBuckets();
+    }
+
+    function renderBuckets() {
+        els.container.innerHTML = '';
+        
+        // 1. Left side: Loose dots pool
+        const pool = document.createElement('div');
+        pool.id = 'dotPool';
+        pool.style.width = '200px';
+        pool.style.borderRight = '2px solid #eee';
+        pool.style.paddingRight = '20px';
+        pool.style.display = 'flex';
+        pool.style.flexWrap = 'wrap';
+        pool.style.alignContent = 'flex-start';
+        
+        for(let i=0; i<state.currentDots; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            dot.style.margin = '3px';
+            pool.appendChild(dot);
+        }
+        els.container.appendChild(pool);
+
+        // 2. Right side: Buckets
+        const bucketArea = document.createElement('div');
+        bucketArea.style.flex = '1';
+        bucketArea.style.display = 'flex';
+        bucketArea.style.justifyContent = 'center';
+        bucketArea.style.gap = '15px';
+        bucketArea.style.marginLeft = '20px';
+
+        // Calculate needed powers
+        let maxPower = 0;
+        while(Math.pow(state.targetBase, maxPower+1) <= state.numberVal) {
+            maxPower++;
+        }
+        if (state.numberVal === 0) maxPower = 0;
+
+        for(let i=maxPower; i>=0; i--) {
+            const capacity = Math.pow(state.targetBase, i);
+            
+            const bucket = document.createElement('div');
+            bucket.className = 'bucket';
+            bucket.onclick = () => fillBucket(i, capacity);
+            bucket.id = `bucket-${i}`;
+
+            const val = document.createElement('div');
+            val.className = 'bucket-val';
+            val.innerText = capacity;
+            
+            const sub = document.createElement('div');
+            sub.className = 'bucket-capacity';
+            sub.innerText = `(容量: ${capacity})`;
+
+            // Count indicator
+            const countBadge = document.createElement('div');
+            countBadge.id = `badge-${i}`;
+            countBadge.style.position = 'absolute';
+            countBadge.style.top = '-10px';
+            countBadge.style.right = '-10px';
+            countBadge.style.background = 'var(--khan-blue)';
+            countBadge.style.color = 'white';
+            countBadge.style.borderRadius = '50%';
+            countBadge.style.width = '25px';
+            countBadge.style.height = '25px';
+            countBadge.style.display = 'flex';
+            countBadge.style.alignItems = 'center';
+            countBadge.style.justifyContent = 'center';
+            countBadge.style.fontSize = '0.8rem';
+            countBadge.innerText = '0';
+            countBadge.style.opacity = '0';
+
+            bucket.appendChild(val);
+            bucket.appendChild(sub);
+            bucket.appendChild(countBadge);
+            bucketArea.appendChild(bucket);
+            
+            state.targetSlots[i] = 0;
+        }
+
+        els.container.appendChild(bucketArea);
+    }
+
+    function fillBucket(power, capacity) {
+        if (state.currentDots < capacity) {
+            alert("剩下的点数不够装进这个容器了！试试小一点的。");
+            return;
+        }
+        
+        // Base 2 specific: can only hold 1 group of that power
+        // General base: can hold up to base-1 groups
+        if (state.targetSlots[power] >= state.targetBase - 1) {
+            alert("这个容器已经装满了！");
+            return;
+        }
+
+        // Logic
+        state.currentDots -= capacity;
+        state.targetSlots[power]++;
+
+        // Visual Update
+        // 1. Remove dots from pool
+        const pool = document.getElementById('dotPool');
+        for(let k=0; k<capacity; k++) {
+            if(pool.lastChild) pool.removeChild(pool.lastChild);
+        }
+
+        // 2. Update bucket UI
+        const badge = document.getElementById(`badge-${power}`);
+        badge.innerText = state.targetSlots[power];
+        badge.style.opacity = '1';
+        
+        const bucket = document.getElementById(`bucket-${power}`);
+        bucket.classList.add('filled');
+        
+        // Check win
+        if (state.currentDots === 0) {
+            finishGame();
+        }
+    }
+
+    function finishGame() {
+        // Construct result string
+        let result = "";
+        for(let i=state.targetSlots.length-1; i>=0; i--) {
+            result += (state.targetSlots[i] || 0);
+        }
+
+        els.math.innerHTML = `${result} <sub>${state.targetBase}</sub>`;
+        els.instruction.innerText = "转换成功！🎉";
+        els.instruction.style.color = "var(--khan-green)";
+        
+        els.btn.style.display = 'block';
+        els.btn.innerText = "再玩一次";
+        els.btn.onclick = () => location.reload();
+        
+        els.expText.innerHTML = `恭喜！你刚刚手动执行了一个进制转换算法。你把十进制的 ${state.numberVal} 成功重组为了二进制的 ${result}。`;
+    }
+
+    function handleAction() {
+        if (state.phase === 1) {
+            triggerDecompose();
+        }
+    }
+
+    function updateSteps(stepNum) {
+        els.s1.className = 'step';
+        els.s2.className = 'step';
+        els.s3.className = 'step';
+        
+        if(stepNum >= 1) els.s1.classList.add('active');
+        if(stepNum >= 2) els.s2.classList.add('active');
+        if(stepNum >= 3) els.s3.classList.add('active');
+    }
+
+    // Start
+    init();
+
+</script>
+
+</body>
+</html>
