@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GESP三级进制练习器</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --panel: #111827;
+            --card: #1f2937;
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+            --primary: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warn: #f59e0b;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: linear-gradient(135deg, #020617, #111827 45%, #1e293b);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 920px;
+            display: grid;
+            gap: 16px;
+        }
+
+        .panel {
+            background: rgba(17, 24, 39, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .title {
+            margin: 0 0 8px 0;
+            font-size: 1.45rem;
+            color: #dbeafe;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+        }
+
+        .badge {
+            background: #0b1220;
+            border: 1px solid #1e3a8a;
+            border-radius: 999px;
+            padding: 6px 10px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        input, select, button {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #0b1220;
+            color: var(--text);
+            padding: 10px 12px;
+            font-size: 0.98rem;
+        }
+
+        button {
+            cursor: pointer;
+            background: var(--primary);
+            border-color: #1d4ed8;
+            font-weight: 600;
+        }
+
+        button.secondary {
+            background: #374151;
+            border-color: #4b5563;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .question {
+            font-size: 1.18rem;
+            margin: 4px 0 10px 0;
+            line-height: 1.6;
+        }
+
+        .hint {
+            color: #93c5fd;
+            font-size: 0.92rem;
+            margin: 6px 0 0 0;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            border: 1px solid transparent;
+            display: none;
+        }
+
+        .feedback.ok {
+            display: block;
+            background: rgba(22, 163, 74, 0.1);
+            border-color: rgba(22, 163, 74, 0.45);
+        }
+
+        .feedback.bad {
+            display: block;
+            background: rgba(220, 38, 38, 0.1);
+            border-color: rgba(220, 38, 38, 0.45);
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .mistakes {
+            margin: 0;
+            padding-left: 18px;
+            color: #fca5a5;
+            line-height: 1.7;
+            font-size: 0.92rem;
+        }
+
+        .knowledge {
+            color: #cbd5e1;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .mono {
+            font-family: Consolas, "Courier New", monospace;
+            color: #fde68a;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <section class="panel">
+            <h1 class="title">GESP三级进制练习器</h1>
+            <p class="subtitle">覆盖常见考点：进制转换、位权展开、合法数字判断、跨进制转换。支持练习模式和计时挑战模式。</p>
+            <div class="toolbar">
+                <div>
+                    <label for="modeSelect">模式</label>
+                    <select id="modeSelect">
+                        <option value="practice">练习模式（不限时）</option>
+                        <option value="challenge">挑战模式（180秒）</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="levelSelect">难度</label>
+                    <select id="levelSelect">
+                        <option value="easy">简单（2/8/10）</option>
+                        <option value="medium" selected>中等（2/4/8/10/16）</option>
+                        <option value="hard">困难（2~16任意）</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="countSelect">题量</label>
+                    <select id="countSelect">
+                        <option value="10">10题</option>
+                        <option value="20" selected>20题</option>
+                        <option value="30">30题</option>
+                    </select>
+                </div>
+                <div style="display:flex; align-items:end;">
+                    <button id="startBtn">开始新一轮</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="stats">
+                <span class="badge">进度：<strong id="progressText">0 / 0</strong></span>
+                <span class="badge">得分：<strong id="scoreText">0</strong></span>
+                <span class="badge">正确率：<strong id="accText">0%</strong></span>
+                <span class="badge">剩余时间：<strong id="timeText">--</strong></span>
+            </div>
+            <p class="question" id="questionText">点击“开始新一轮”生成题目。</p>
+            <p class="hint" id="hintText"></p>
+            <label for="answerInput">你的答案</label>
+            <input id="answerInput" placeholder="例如：1110 或 3F 或 29" autocomplete="off">
+            <div class="actions">
+                <button id="submitBtn" class="secondary" disabled>提交答案</button>
+                <button id="nextBtn" disabled>下一题</button>
+            </div>
+            <div id="feedback" class="feedback"></div>
+        </section>
+
+        <section class="panel">
+            <h3 style="margin-top:0;">错题记录</h3>
+            <ul id="mistakeList" class="mistakes">
+                <li>暂无错题。</li>
+            </ul>
+        </section>
+
+        <section class="panel knowledge">
+            <h3 style="margin-top:0;">速记卡（三级常用）</h3>
+            <div>1) 任意 <span class="mono">N进制 → 10进制</span>：按位权展开求和。</div>
+            <div>2) <span class="mono">10进制 → N进制</span>：不断除以 N 取余，逆序写余数。</div>
+            <div>3) 数字合法性：在 N 进制中，每位必须满足 <span class="mono">0 ≤ digit &lt; N</span>。</div>
+            <div>4) <span class="mono">2↔8↔16</span> 常可用分组法（每3位二进制=1位八进制，每4位二进制=1位十六进制）。</div>
+        </section>
+    </div>
+
+    <script>
+        const DIGITS = "0123456789ABCDEF";
+        const state = {
+            questions: [],
+            index: -1,
+            score: 0,
+            correct: 0,
+            answered: 0,
+            mistakes: [],
+            mode: "practice",
+            level: "medium",
+            total: 20,
+            secLeft: 180,
+            timer: null,
+            locked: true
+        };
+
+        const refs = {
+            modeSelect: document.getElementById("modeSelect"),
+            levelSelect: document.getElementById("levelSelect"),
+            countSelect: document.getElementById("countSelect"),
+            startBtn: document.getElementById("startBtn"),
+            progressText: document.getElementById("progressText"),
+            scoreText: document.getElementById("scoreText"),
+            accText: document.getElementById("accText"),
+            timeText: document.getElementById("timeText"),
+            questionText: document.getElementById("questionText"),
+            hintText: document.getElementById("hintText"),
+            answerInput: document.getElementById("answerInput"),
+            submitBtn: document.getElementById("submitBtn"),
+            nextBtn: document.getElementById("nextBtn"),
+            feedback: document.getElementById("feedback"),
+            mistakeList: document.getElementById("mistakeList")
+        };
+
+        function pickBases(level) {
+            if (level === "easy") return [2, 8, 10];
+            if (level === "medium") return [2, 4, 8, 10, 16];
+            return [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 16];
+        }
+
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function toBase(n, base) {
+            if (n === 0) return "0";
+            let x = n;
+            let out = "";
+            while (x > 0) {
+                out = DIGITS[x % base] + out;
+                x = Math.floor(x / base);
+            }
+            return out;
+        }
+
+        function fromBase(str, base) {
+            let sum = 0;
+            const s = str.toUpperCase();
+            for (let i = 0; i < s.length; i++) {
+                const d = DIGITS.indexOf(s[i]);
+                if (d < 0 || d >= base) return null;
+                sum = sum * base + d;
+            }
+            return sum;
+        }
+
+        function randomValidInBase(base, min = 10, max = 120) {
+            const val = randInt(min, max);
+            return { value10: val, repr: toBase(val, base) };
+        }
+
+        function randomToken(base) {
+            return DIGITS[randInt(0, base - 1)];
+        }
+
+        function buildQuestion(level) {
+            const pool = pickBases(level);
+            const type = randInt(1, 5);
+
+            if (type === 1) {
+                const from = pool[randInt(0, pool.length - 1)];
+                const v = randomValidInBase(from, 8, 220);
+                return {
+                    prompt: `把 ${v.repr}（${from}进制）转换为十进制。`,
+                    hint: "按位权展开，例如 1A(16) = 1*16 + 10。",
+                    answer: String(v.value10),
+                    explain: `${v.repr}(${from}) = ${v.value10}(10)`
+                };
+            }
+
+            if (type === 2) {
+                const to = pool[randInt(0, pool.length - 1)];
+                const val = randInt(8, 220);
+                return {
+                    prompt: `把 ${val}（十进制）转换为 ${to} 进制。`,
+                    hint: "连续除以目标进制，余数逆序写出。",
+                    answer: toBase(val, to),
+                    explain: `${val}(10) = ${toBase(val, to)}(${to})`
+                };
+            }
+
+            if (type === 3) {
+                let from = pool[randInt(0, pool.length - 1)];
+                let to = pool[randInt(0, pool.length - 1)];
+                while (to === from) to = pool[randInt(0, pool.length - 1)];
+                const v = randomValidInBase(from, 8, 180);
+                const target = toBase(v.value10, to);
+                return {
+                    prompt: `把 ${v.repr}（${from}进制）转换为 ${to} 进制。`,
+                    hint: "建议先转十进制，再转目标进制。",
+                    answer: target,
+                    explain: `${v.repr}(${from}) = ${v.value10}(10) = ${target}(${to})`
+                };
+            }
+
+            if (type === 4) {
+                const base = pool[randInt(0, pool.length - 1)];
+                const d3 = randInt(1, Math.min(base - 1, 5));
+                const d2 = randInt(0, Math.min(base - 1, 6));
+                const d1 = randInt(0, Math.min(base - 1, 7));
+                const d0 = randInt(0, Math.min(base - 1, 8));
+                const expression = `${d3}*${base}^3 + ${d2}*${base}^2 + ${d1}*${base} + ${d0}`;
+                const value = d3 * base * base * base + d2 * base * base + d1 * base + d0;
+                return {
+                    prompt: `计算：${expression} = ?（十进制）`,
+                    hint: "位权题：a*b^k 表示 a 个 b^k。",
+                    answer: String(value),
+                    explain: `${expression} = ${value}(10)`
+                };
+            }
+
+            const base = pool[randInt(0, pool.length - 1)];
+            const len = randInt(3, 4);
+            let token = "";
+            for (let i = 0; i < len; i++) token += randomToken(base);
+            const forceWrong = Math.random() < 0.5 && base < 16;
+            if (forceWrong) {
+                const badDigit = DIGITS[randInt(base, 15)];
+                const pos = randInt(0, len - 1);
+                token = token.substring(0, pos) + badDigit + token.substring(pos + 1);
+            }
+            const valid = fromBase(token, base) !== null;
+            return {
+                prompt: `判断数字 ${token} 在 ${base} 进制中是否合法？（填 yes 或 no）`,
+                hint: "每一位必须小于进制基数。",
+                answer: valid ? "YES" : "NO",
+                explain: valid
+                    ? `${token} 的每位都 < ${base}，所以合法。`
+                    : `${token} 中至少一位 >= ${base}，所以不合法。`
+            };
+        }
+
+        function normalizeUserInput(raw, q) {
+            const t = raw.trim().toUpperCase();
+            if (q.answer === "YES" || q.answer === "NO") {
+                if (["Y", "YES", "对", "正确", "合法"].includes(t)) return "YES";
+                if (["N", "NO", "错", "错误", "不合法"].includes(t)) return "NO";
+            }
+            return t;
+        }
+
+        function updateStats() {
+            const shown = state.total === 0
+                ? 0
+                : Math.min(Math.max(state.index + 1, 0), state.total);
+            refs.progressText.textContent = `${shown} / ${state.total}`;
+            refs.scoreText.textContent = String(state.score);
+            const acc = state.answered === 0 ? 0 : Math.round((state.correct / state.answered) * 100);
+            refs.accText.textContent = `${acc}%`;
+            refs.timeText.textContent = state.mode === "challenge" ? `${state.secLeft}s` : "--";
+        }
+
+        function renderMistakes() {
+            if (state.mistakes.length === 0) {
+                refs.mistakeList.innerHTML = "<li>暂无错题。</li>";
+                return;
+            }
+            refs.mistakeList.innerHTML = state.mistakes
+                .map((m) => `<li>${m.prompt} 你的答案：${m.user}；正确答案：${m.answer}</li>`)
+                .join("");
+        }
+
+        function showQuestion() {
+            if (state.index >= state.questions.length) {
+                finishRound();
+                return;
+            }
+            const q = state.questions[state.index];
+            refs.questionText.textContent = q.prompt;
+            refs.hintText.textContent = `提示：${q.hint}`;
+            refs.answerInput.value = "";
+            refs.answerInput.focus();
+            refs.feedback.className = "feedback";
+            refs.feedback.textContent = "";
+            refs.submitBtn.disabled = false;
+            refs.nextBtn.disabled = true;
+            state.locked = false;
+            updateStats();
+        }
+
+        function submitAnswer() {
+            if (state.locked || state.index < 0) return;
+            const q = state.questions[state.index];
+            const user = normalizeUserInput(refs.answerInput.value, q);
+            const right = q.answer.toUpperCase();
+            const ok = user === right;
+            state.answered += 1;
+            state.locked = true;
+            refs.submitBtn.disabled = true;
+            refs.nextBtn.disabled = false;
+
+            if (ok) {
+                state.correct += 1;
+                state.score += 5;
+                refs.feedback.className = "feedback ok";
+                refs.feedback.textContent = `回答正确。解析：${q.explain}`;
+            } else {
+                refs.feedback.className = "feedback bad";
+                refs.feedback.textContent = `回答错误。你的答案：${user || "(空)"}；正确答案：${right}。解析：${q.explain}`;
+                state.mistakes.push({ prompt: q.prompt, user: user || "(空)", answer: right });
+                renderMistakes();
+            }
+
+            updateStats();
+        }
+
+        function nextQuestion() {
+            state.index += 1;
+            showQuestion();
+        }
+
+        function finishRound() {
+            clearInterval(state.timer);
+            state.timer = null;
+            state.index = state.total;
+            state.locked = true;
+            refs.submitBtn.disabled = true;
+            refs.nextBtn.disabled = true;
+            refs.feedback.className = "feedback ok";
+            refs.feedback.textContent = `本轮结束！得分 ${state.score}，共答对 ${state.correct}/${state.total}。建议把错题再做一遍。`;
+            refs.questionText.textContent = "点击“开始新一轮”继续练习。";
+            refs.hintText.textContent = "";
+            updateStats();
+        }
+
+        function startTimer() {
+            clearInterval(state.timer);
+            state.secLeft = 180;
+            updateStats();
+            state.timer = setInterval(() => {
+                state.secLeft -= 1;
+                if (state.secLeft < 0) state.secLeft = 0;
+                updateStats();
+                if (state.secLeft <= 0) {
+                    finishRound();
+                }
+            }, 1000);
+        }
+
+        function startRound() {
+            clearInterval(state.timer);
+            state.mode = refs.modeSelect.value;
+            state.level = refs.levelSelect.value;
+            state.total = Number(refs.countSelect.value);
+            state.questions = [];
+            for (let i = 0; i < state.total; i++) {
+                state.questions.push(buildQuestion(state.level));
+            }
+            state.index = 0;
+            state.score = 0;
+            state.correct = 0;
+            state.answered = 0;
+            state.mistakes = [];
+            renderMistakes();
+            if (state.mode === "challenge") {
+                startTimer();
+            } else {
+                refs.timeText.textContent = "--";
+            }
+            showQuestion();
+        }
+
+        refs.startBtn.addEventListener("click", startRound);
+        refs.submitBtn.addEventListener("click", submitAnswer);
+        refs.nextBtn.addEventListener("click", nextQuestion);
+        refs.answerInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !refs.submitBtn.disabled) {
+                submitAnswer();
+            } else if (e.key === "Enter" && !refs.nextBtn.disabled) {
+                nextQuestion();
+            }
+        });
+
+        updateStats();
+    </script>
+</body>
+</html>
