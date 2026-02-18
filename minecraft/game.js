@@ -198,7 +198,7 @@ class Game {
     constructor() {
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer = new THREE.WebGLRenderer({ antialias: false });
         this.clock = new THREE.Clock();
         
         this.world = {};
@@ -250,13 +250,22 @@ class Game {
         this.mouse = new THREE.Vector2();
         this.isPointerLocked = false;
         
+        // Performance tracking
+        this.worldGenComplete = false;
+        this.lastFrameTime = performance.now();
+        this.frameCount = 0;
+        this.fpsDisplay = 60;
+        this.fpsUpdateTimer = 0;
+        this.uiUpdateTimer = 0;
+        
         this.init();
     }
     
     init() {
         // Setup renderer
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.shadowMap.enabled = true;
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
+        this.renderer.shadowMap.enabled = false;
         document.body.appendChild(this.renderer.domElement);
         
         // Setup scene
@@ -272,8 +281,10 @@ class Game {
         
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
         directionalLight.position.set(50, 100, 50);
-        directionalLight.castShadow = true;
         this.scene.add(directionalLight);
+        
+        // Initialize material cache for performance
+        this.initMaterialCache();
         
         // Generate world
         this.generateWorld();
@@ -296,6 +307,7 @@ class Game {
     }
     
     generateWorld() {
+        this.worldGenComplete = false;
         for (let x = 0; x < WORLD_SIZE; x++) {
             for (let z = 0; z < WORLD_SIZE; z++) {
                 // Simple terrain generation
@@ -327,6 +339,95 @@ class Game {
         
         // Hide coins in the world
         this.generateCoins();
+        
+        // Build meshes only for visible (exposed) blocks
+        this.worldGenComplete = true;
+        this.buildVisibleMeshes();
+    }
+    
+    initMaterialCache() {
+        this.sharedGeometry = new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+        this.fencePostGeo = new THREE.BoxGeometry(0.15, 1.5, 0.15);
+        this.fenceRailGeo = new THREE.BoxGeometry(0.8, 0.1, 0.1);
+        
+        this.cachedMaterials = {};
+        this.cachedMaterials[BlockType.GRASS] = [
+            new THREE.MeshLambertMaterial({ color: BlockColors[BlockType.GRASS].side }),
+            new THREE.MeshLambertMaterial({ color: BlockColors[BlockType.GRASS].side }),
+            new THREE.MeshLambertMaterial({ color: BlockColors[BlockType.GRASS].top }),
+            new THREE.MeshLambertMaterial({ color: BlockColors[BlockType.GRASS].bottom }),
+            new THREE.MeshLambertMaterial({ color: BlockColors[BlockType.GRASS].side }),
+            new THREE.MeshLambertMaterial({ color: BlockColors[BlockType.GRASS].side }),
+        ];
+        this.cachedMaterials[BlockType.DIRT] = new THREE.MeshLambertMaterial({ color: BlockColors[BlockType.DIRT] });
+        this.cachedMaterials[BlockType.STONE] = new THREE.MeshLambertMaterial({ color: BlockColors[BlockType.STONE] });
+        this.cachedMaterials[BlockType.WOOD] = new THREE.MeshLambertMaterial({ color: BlockColors[BlockType.WOOD] });
+        this.cachedMaterials[BlockType.LEAVES] = new THREE.MeshLambertMaterial({ color: BlockColors[BlockType.LEAVES] });
+        this.cachedMaterials[BlockType.COIN] = new THREE.MeshLambertMaterial({ 
+            color: BlockColors[BlockType.COIN],
+            emissive: 0xffaa00,
+            emissiveIntensity: 0.3
+        });
+        this.cachedMaterials[BlockType.FENCE] = new THREE.MeshLambertMaterial({ color: BlockColors[BlockType.FENCE] });
+        this.cachedMaterials[ItemType.PLANKS] = new THREE.MeshLambertMaterial({ color: BlockColors[ItemType.PLANKS] });
+    }
+    
+    isBlockExposed(x, y, z) {
+        return (
+            this.getBlock(x + 1, y, z) === BlockType.AIR ||
+            this.getBlock(x - 1, y, z) === BlockType.AIR ||
+            this.getBlock(x, y + 1, z) === BlockType.AIR ||
+            this.getBlock(x, y - 1, z) === BlockType.AIR ||
+            this.getBlock(x, y, z + 1) === BlockType.AIR ||
+            this.getBlock(x, y, z - 1) === BlockType.AIR
+        );
+    }
+    
+    updateBlockMesh(x, y, z) {
+        const key = `${x},${y},${z}`;
+        const type = this.world[key];
+        if (!type || type === BlockType.AIR) return;
+        
+        const exposed = this.isBlockExposed(x, y, z);
+        const existingMesh = this.blocks.get(key);
+        
+        if (exposed && !existingMesh) {
+            const mesh = this.createBlockMesh(type);
+            mesh.position.set(x, y, z);
+            mesh.userData = { x, y, z, type };
+            this.scene.add(mesh);
+            this.blocks.set(key, mesh);
+        } else if (!exposed && existingMesh) {
+            this.scene.remove(existingMesh);
+            this.blocks.delete(key);
+        }
+    }
+    
+    updateNeighborVisibility(x, y, z) {
+        const neighbors = [
+            [x + 1, y, z], [x - 1, y, z],
+            [x, y + 1, z], [x, y - 1, z],
+            [x, y, z + 1], [x, y, z - 1]
+        ];
+        for (const [nx, ny, nz] of neighbors) {
+            if (this.world[`${nx},${ny},${nz}`]) {
+                this.updateBlockMesh(nx, ny, nz);
+            }
+        }
+    }
+    
+    buildVisibleMeshes() {
+        for (const key in this.world) {
+            const [x, y, z] = key.split(',').map(Number);
+            if (this.isBlockExposed(x, y, z)) {
+                const type = this.world[key];
+                const mesh = this.createBlockMesh(type);
+                mesh.position.set(x, y, z);
+                mesh.userData = { x, y, z, type };
+                this.scene.add(mesh);
+                this.blocks.set(key, mesh);
+            }
+        }
     }
     
     spawnAnimals() {
@@ -897,17 +998,17 @@ class Game {
                 this.blocks.delete(key);
             }
             delete this.world[key];
+            if (this.worldGenComplete) {
+                this.updateNeighborVisibility(x, y, z);
+            }
             return;
         }
         
         this.world[key] = type;
         
-        if (!this.blocks.has(key)) {
-            const mesh = this.createBlockMesh(type);
-            mesh.position.set(x, y, z);
-            mesh.userData = { x, y, z, type };
-            this.scene.add(mesh);
-            this.blocks.set(key, mesh);
+        if (this.worldGenComplete) {
+            this.updateBlockMesh(x, y, z);
+            this.updateNeighborVisibility(x, y, z);
         }
     }
     
@@ -917,68 +1018,31 @@ class Game {
     }
     
     createBlockMesh(type) {
-        let geometry, material;
-        
         if (type === BlockType.FENCE) {
-            // Create fence-like structure (thinner and taller)
             const group = new THREE.Group();
-            const fenceMat = new THREE.MeshLambertMaterial({ color: BlockColors[type] });
+            const fenceMat = this.cachedMaterials[BlockType.FENCE];
             
-            // Two vertical posts
-            const postGeo = new THREE.BoxGeometry(0.15, 1.5, 0.15);
-            const post1 = new THREE.Mesh(postGeo, fenceMat);
+            const post1 = new THREE.Mesh(this.fencePostGeo, fenceMat);
             post1.position.set(-0.3, 0.25, 0);
-            post1.castShadow = true;
             group.add(post1);
             
-            const post2 = new THREE.Mesh(postGeo, fenceMat);
+            const post2 = new THREE.Mesh(this.fencePostGeo, fenceMat);
             post2.position.set(0.3, 0.25, 0);
-            post2.castShadow = true;
             group.add(post2);
             
-            // Two horizontal rails
-            const railGeo = new THREE.BoxGeometry(0.8, 0.1, 0.1);
-            const rail1 = new THREE.Mesh(railGeo, fenceMat);
+            const rail1 = new THREE.Mesh(this.fenceRailGeo, fenceMat);
             rail1.position.set(0, 0.6, 0);
-            rail1.castShadow = true;
             group.add(rail1);
             
-            const rail2 = new THREE.Mesh(railGeo, fenceMat);
+            const rail2 = new THREE.Mesh(this.fenceRailGeo, fenceMat);
             rail2.position.set(0, 0.3, 0);
-            rail2.castShadow = true;
             group.add(rail2);
             
             return group;
         }
         
-        geometry = new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-        
-        if (type === BlockType.GRASS) {
-            const materials = [
-                new THREE.MeshLambertMaterial({ color: BlockColors[type].side }), // right
-                new THREE.MeshLambertMaterial({ color: BlockColors[type].side }), // left
-                new THREE.MeshLambertMaterial({ color: BlockColors[type].top }), // top
-                new THREE.MeshLambertMaterial({ color: BlockColors[type].bottom }), // bottom
-                new THREE.MeshLambertMaterial({ color: BlockColors[type].side }), // front
-                new THREE.MeshLambertMaterial({ color: BlockColors[type].side }), // back
-            ];
-            material = materials;
-        } else if (type === BlockType.COIN) {
-            // Make coins shiny and emissive
-            material = new THREE.MeshLambertMaterial({ 
-                color: BlockColors[type],
-                emissive: 0xffaa00,
-                emissiveIntensity: 0.3
-            });
-        } else {
-            material = new THREE.MeshLambertMaterial({ color: BlockColors[type] });
-        }
-        
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        
-        return mesh;
+        const material = this.cachedMaterials[type] || this.cachedMaterials[BlockType.STONE];
+        return new THREE.Mesh(this.sharedGeometry, material);
     }
     
     setupControls() {
@@ -1696,7 +1760,24 @@ class Game {
     
     getTargetBlock() {
         this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
-        const intersects = this.raycaster.intersectObjects(Array.from(this.blocks.values()));
+        
+        // Only check blocks near the player instead of all blocks
+        const nearbyBlocks = [];
+        const px = Math.floor(this.player.position.x);
+        const py = Math.floor(this.player.position.y);
+        const pz = Math.floor(this.player.position.z);
+        const range = REACH_DISTANCE + 1;
+        
+        for (let dx = -range; dx <= range; dx++) {
+            for (let dy = -range; dy <= range; dy++) {
+                for (let dz = -range; dz <= range; dz++) {
+                    const block = this.blocks.get(`${px + dx},${py + dy},${pz + dz}`);
+                    if (block) nearbyBlocks.push(block);
+                }
+            }
+        }
+        
+        const intersects = this.raycaster.intersectObjects(nearbyBlocks);
         
         if (intersects.length > 0) {
             const hit = intersects[0];
@@ -1813,8 +1894,7 @@ class Game {
     }
     
     updateUI() {
-        const fps = Math.round(1 / this.clock.getDelta());
-        document.getElementById('fps').textContent = fps;
+        document.getElementById('fps').textContent = this.fpsDisplay;
         
         const pos = this.player.position;
         document.getElementById('position').textContent = 
@@ -1844,13 +1924,24 @@ class Game {
     animate() {
         requestAnimationFrame(() => this.animate());
         
-        const deltaTime = Math.min(this.clock.getDelta(), 0.1);
+        const now = performance.now();
+        const frameDelta = (now - this.lastFrameTime) / 1000;
+        this.lastFrameTime = now;
+        const deltaTime = Math.min(frameDelta, 0.1);
+        
+        // FPS tracking (update display every 0.5s)
+        this.frameCount++;
+        this.fpsUpdateTimer += deltaTime;
+        if (this.fpsUpdateTimer >= 0.5) {
+            this.fpsDisplay = Math.round(this.frameCount / this.fpsUpdateTimer);
+            this.frameCount = 0;
+            this.fpsUpdateTimer = 0;
+        }
         
         if (this.isPointerLocked && !this.craftingMenuOpen && !this.shopMenuOpen) {
             this.updatePlayer(deltaTime);
         }
         
-        // Always update animals and enemies
         this.updateAnimals(deltaTime);
         this.updateEnemies(deltaTime);
         
@@ -1861,7 +1952,13 @@ class Game {
             this.player.healthRegenTimer = 0;
         }
         
-        this.updateUI();
+        // Throttle UI updates to ~4 times per second
+        this.uiUpdateTimer += deltaTime;
+        if (this.uiUpdateTimer >= 0.25) {
+            this.uiUpdateTimer = 0;
+            this.updateUI();
+        }
+        
         this.renderer.render(this.scene, this.camera);
     }
 }
