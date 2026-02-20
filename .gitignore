@@ -1,0 +1,13 @@
+# API keys and secrets
+llm_providers/
+
+# Cache
+.cache/
+cache/
+*.cache
+__pycache__/
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
