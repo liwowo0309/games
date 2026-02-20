@@ -19,6 +19,7 @@
             --border: #3e3e42;
             --text: #cccccc;
             --text-muted: #858585;
+            --chat-panel-width: 440px;
         }
 
         * {
@@ -400,9 +401,9 @@
 
         .chat-panel {
             position: fixed;
-            right: -440px;
+            right: calc(-1 * var(--chat-panel-width));
             top: 0;
-            width: 440px;
+            width: var(--chat-panel-width);
             height: 100vh;
             background: var(--panel);
             border-left: 1px solid var(--border);
@@ -415,6 +416,39 @@
 
         .chat-panel.open {
             right: 0;
+        }
+
+        .chat-resizer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 100%;
+            cursor: ew-resize;
+            transform: translateX(-50%);
+            z-index: 2100;
+        }
+
+        .chat-resizer::after {
+            content: "";
+            position: absolute;
+            left: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2px;
+            height: 36px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.22);
+            transition: background 0.2s;
+        }
+
+        .chat-resizer:hover::after {
+            background: rgba(255,255,255,0.45);
+        }
+
+        body.chat-resizing {
+            cursor: ew-resize;
+            user-select: none;
         }
 
         .chat-overlay {
@@ -988,6 +1022,10 @@
                 width: 100%;
                 right: -100%;
             }
+
+            .chat-resizer {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -1071,6 +1109,7 @@
 
     <!-- Chat Panel -->
     <div class="chat-panel" id="chatPanel">
+        <div class="chat-resizer" id="chatResizer" title="拖拽调整宽度"></div>
         <div class="chat-header">
             <div class="chat-header-title">🤖 C++ 编程助手</div>
             <div class="chat-header-actions">
@@ -1082,7 +1121,7 @@
             <div class="chat-welcome">
                 <h3>🤖 C++ 编程助手</h3>
                 <p>我可以帮你编写、调试和优化 C++ 代码。<br>
-                内置丰富的 C++ 知识库，无需注册直接使用！<br>
+                已连接 Kimi AI（Moonshot），现在可以实时问答！<br>
                 点击下方快捷按钮或输入问题开始吧！</p>
             </div>
         </div>
@@ -1365,6 +1404,77 @@ int main() {
         let chatOpen = false;
         let attachCode = false;
         let isGenerating = false;
+        let chatHistory = [];
+
+        const kimiConfig = {
+            baseUrl: 'https://api.moonshot.ai/v1',
+            apiKey: 'sk-lpiTbwLFFF2dzLQ9deG4cgV05ar5z3SSOZMUGWVpLzHmFzjE',
+            model: 'kimi-k2.5',
+            temperature: 1
+        };
+
+        const CHAT_PANEL_MIN_WIDTH = 320;
+        const CHAT_PANEL_MAX_WIDTH = 800;
+        const CHAT_PANEL_DEFAULT_WIDTH = 440;
+
+        function clampChatPanelWidth(width) {
+            return Math.max(CHAT_PANEL_MIN_WIDTH, Math.min(CHAT_PANEL_MAX_WIDTH, Math.round(width)));
+        }
+
+        function applyChatPanelWidth(width, shouldSave = true) {
+            if (window.innerWidth <= 768) return;
+            const finalWidth = clampChatPanelWidth(width);
+            document.documentElement.style.setProperty('--chat-panel-width', finalWidth + 'px');
+            if (shouldSave) {
+                localStorage.setItem('cpp-chat-panel-width', String(finalWidth));
+            }
+        }
+
+        function initChatPanelResize() {
+            const resizer = document.getElementById('chatResizer');
+            if (!resizer) return;
+
+            const savedWidth = parseInt(localStorage.getItem('cpp-chat-panel-width') || '', 10);
+            if (!Number.isNaN(savedWidth)) {
+                applyChatPanelWidth(savedWidth, false);
+            } else {
+                applyChatPanelWidth(CHAT_PANEL_DEFAULT_WIDTH, false);
+            }
+
+            let resizing = false;
+
+            function onMouseMove(event) {
+                if (!resizing) return;
+                const nextWidth = window.innerWidth - event.clientX;
+                applyChatPanelWidth(nextWidth);
+            }
+
+            function onMouseUp() {
+                if (!resizing) return;
+                resizing = false;
+                document.body.classList.remove('chat-resizing');
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+            }
+
+            resizer.addEventListener('mousedown', function(event) {
+                if (window.innerWidth <= 768) return;
+                event.preventDefault();
+                resizing = true;
+                document.body.classList.add('chat-resizing');
+                window.addEventListener('mousemove', onMouseMove);
+                window.addEventListener('mouseup', onMouseUp);
+            });
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    const val = parseInt(localStorage.getItem('cpp-chat-panel-width') || String(CHAT_PANEL_DEFAULT_WIDTH), 10);
+                    applyChatPanelWidth(Number.isNaN(val) ? CHAT_PANEL_DEFAULT_WIDTH : val, false);
+                } else {
+                    document.documentElement.style.removeProperty('--chat-panel-width');
+                }
+            });
+        }
 
         // ---- C++ 知识库 ----
         const KB = [
@@ -2299,6 +2409,8 @@ KB_DETAILED['常见错误与调试'] =
             }
         }
 
+        initChatPanelResize();
+
         // 附加代码切换
         function toggleAttachCode() {
             attachCode = !attachCode;
@@ -2326,7 +2438,7 @@ KB_DETAILED['常见错误与调试'] =
                 '<div class="chat-welcome">' +
                 '<h3>🤖 C++ 编程助手</h3>' +
                 '<p>我可以帮你编写、调试和优化 C++ 代码。<br>' +
-                '内置丰富的 C++ 知识库，无需注册直接使用！<br>' +
+                '已连接 Kimi AI（Moonshot），现在可以实时问答！<br>' +
                 '点击下方快捷按钮或输入问题开始吧！</p></div>';
         }
 
@@ -3236,6 +3348,161 @@ KB_DETAILED['常见错误与调试'] =
             }
             typeResponse(fallback);
         }
+
+        // ===== 使用 Kimi API 覆盖本地知识库逻辑 =====
+        function buildAiPrompt(userText, options) {
+            const code = editor.getValue();
+            const useCode = options && options.withCode && code.trim();
+            const action = options && options.action ? options.action : '';
+
+            let prompt = userText;
+
+            if (action) {
+                const actionMap = {
+                    explain: '请详细解释下面这段 C++ 代码，包括每部分作用、思路和复杂度（如果适用）。',
+                    debug: '请找出下面 C++ 代码中的错误或风险点，并给出可直接替换的修复代码。',
+                    optimize: '请优化下面 C++ 代码，说明瓶颈并给出优化后的完整代码和原因。',
+                    comment: '请给下面 C++ 代码添加高质量中文注释，并返回完整代码。',
+                    complete: '请根据下面 C++ 代码上下文补全缺失部分，并返回完整可编译代码。'
+                };
+                prompt = actionMap[action] || userText;
+            }
+
+            if (useCode) {
+                prompt += '\n\n这是我当前编辑器中的代码：\n```cpp\n' + code + '\n```';
+            }
+
+            return prompt;
+        }
+
+        async function callKimi(prompt) {
+            const endpoint = kimiConfig.baseUrl.replace(/\/$/, '') + '/chat/completions';
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + kimiConfig.apiKey
+                },
+                body: JSON.stringify({
+                    model: kimiConfig.model,
+                    temperature: kimiConfig.temperature,
+                    stream: true,
+                    messages: [
+                        {
+                            role: 'system',
+                            content: '你是一个专业 C++ 教学与编程助手。请用中文回答。回答要详细、结构清晰、可执行。若涉及代码，优先给完整可编译示例，并解释关键点与常见坑。'
+                        }
+                    ].concat(chatHistory.slice(-12)).concat([{ role: 'user', content: prompt }])
+                })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error('Kimi API 请求失败: ' + response.status + ' ' + errText.slice(0, 200));
+            }
+
+            const messages = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-msg bot';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'chat-msg-avatar';
+            avatar.textContent = '🤖';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'chat-msg-content';
+            contentDiv.innerHTML = '<p style="opacity:0.6">正在思考...</p>';
+
+            msgDiv.appendChild(avatar);
+            msgDiv.appendChild(contentDiv);
+            messages.appendChild(msgDiv);
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let full = '';
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    const t = line.trim();
+                    if (!t.startsWith('data: ')) continue;
+                    const data = t.slice(6);
+                    if (data === '[DONE]') continue;
+                    try {
+                        const json = JSON.parse(data);
+                        const delta = json.choices?.[0]?.delta?.content;
+                        if (delta) {
+                            full += delta;
+                            contentDiv.innerHTML = renderMarkdown(full);
+                            messages.scrollTop = messages.scrollHeight;
+                        }
+                    } catch (_) {}
+                }
+            }
+
+            contentDiv.innerHTML = renderMarkdown(full || '（空响应）');
+            addCodeBlockButtons(contentDiv);
+            messages.scrollTop = messages.scrollHeight;
+            chatHistory.push({ role: 'assistant', content: full || '（空响应）' });
+        }
+
+        async function runAiRequest(displayText, prompt, options) {
+            if (isGenerating) return;
+            isGenerating = true;
+            document.getElementById('sendBtn').disabled = true;
+            addChatMessage('user', displayText);
+            addTypingIndicator();
+
+            try {
+                removeTypingIndicator();
+                const finalPrompt = buildAiPrompt(prompt, options || {});
+                chatHistory.push({ role: 'user', content: finalPrompt });
+                await callKimi(finalPrompt);
+            } catch (err) {
+                removeTypingIndicator();
+                addChatMessage('bot', '❌ 调用 Kimi 失败：' + err.message + '\n\n请检查：\n- API Key 是否正确\n- 网络是否正常\n- Kimi 服务是否可用');
+            } finally {
+                isGenerating = false;
+                document.getElementById('sendBtn').disabled = false;
+            }
+        }
+
+        // 覆盖快捷操作：走 AI
+        quickAction = function(action) {
+            const code = editor.getValue();
+            if (!code.trim()) {
+                showChatNotification('编辑器中没有代码', 'error');
+                return;
+            }
+            const label = quickActionLabels[action] || 'AI 分析';
+            runAiRequest(label + ' [当前编辑器代码]', label, { withCode: true, action: action });
+        };
+
+        // 覆盖发送：走 AI
+        sendMessage = function() {
+            if (isGenerating) return;
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const withCode = attachCode;
+            if (attachCode) toggleAttachCode();
+            input.value = '';
+            input.style.height = 'auto';
+
+            runAiRequest(message, message, { withCode: withCode });
+        };
+
+        // 覆盖本地 processMessage（保留兼容）
+        processMessage = function(query) {
+            runAiRequest(query, query, { withCode: false });
+        };
     </script>
 </body>
 </html>
