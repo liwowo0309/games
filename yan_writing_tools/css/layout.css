@@ -1,0 +1,481 @@
+/**
+ * English Writing Studio - Layout Styles
+ * 布局系统：Header、Container、Grid、响应式
+ */
+
+/* ========== Header 头部 ========== */
+.header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    padding: var(--space-lg) var(--space-xl);
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    box-shadow: var(--shadow-lg);
+    transition: padding var(--transition-base);
+}
+
+.header.compact {
+    padding: var(--space-sm) var(--space-md);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.header.compact h1 {
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+.header.compact p {
+    display: none;
+}
+
+.header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xs);
+}
+
+.header p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* ========== 返回按钮 ========== */
+.back-btn {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: calc(var(--z-sticky) + 1);
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.5rem 1rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    transition: all var(--transition-fast);
+}
+
+.back-btn:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--primary);
+    transform: translateX(-2px);
+}
+
+.back-btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* ========== 主容器 ========== */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-xl);
+}
+
+/* ========== Grid 系统 ========== */
+.mode-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-lg);
+}
+
+/* ========== Flex 布局工具类 ========== */
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.justify-around {
+    justify-content: space-around;
+}
+
+.items-start {
+    align-items: flex-start;
+}
+
+.items-end {
+    align-items: flex-end;
+}
+
+/* ========== 两栏布局 ========== */
+.two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+}
+
+.two-column .left,
+.two-column .right {
+    min-width: 0;
+}
+
+/* ========== 粘性布局 ========== */
+.sticky-header {
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+    z-index: 10;
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--border);
+}
+
+/* ========== 统计栏 ========== */
+.stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-xl);
+    margin-bottom: var(--space-xl);
+    padding: var(--space-lg);
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border);
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: var(--space-xs);
+}
+
+/* ========== 年级选择器 ========== */
+.grade-dropdown {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: calc(var(--z-sticky) + 1);
+}
+
+.grade-dropdown-btn {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.6rem 1rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
+    min-width: 180px;
+}
+
+.grade-dropdown-btn:hover {
+    border-color: var(--primary);
+    background: var(--bg-card-hover);
+}
+
+.grade-icon {
+    font-size: 1.1rem;
+}
+
+.lexile-badge {
+    background: var(--primary);
+    color: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.dropdown-arrow {
+    margin-left: auto;
+    font-size: 0.7rem;
+    transition: transform var(--transition-base);
+}
+
+.grade-dropdown.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.grade-dropdown-content {
+    display: none;
+    position: absolute;
+    top: calc(100% + var(--space-sm));
+    right: 0;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    min-width: 280px;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+}
+
+.grade-dropdown.open .grade-dropdown-content {
+    display: block;
+    animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.grade-option {
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all var(--transition-fast);
+}
+
+.grade-option:hover {
+    background: var(--bg-card-hover);
+}
+
+.grade-option.selected {
+    background: rgba(99, 102, 241, 0.2);
+    border-left: 3px solid var(--primary);
+}
+
+/* ========== 写作题目素材库（首页） ========== */
+.prompt-bank-panel {
+    max-width: 52rem;
+    margin: 0 auto 2.5rem;
+    padding: var(--space-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+.prompt-bank-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.prompt-bank-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.prompt-bank-count {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.prompt-bank-count strong {
+    color: var(--text-primary);
+}
+
+.prompt-bank-hint {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0 0 var(--space-md);
+    line-height: 1.5;
+}
+
+.prompt-bank-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.prompt-bank-empty {
+    margin: 0;
+    padding: var(--space-md);
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.prompt-bank-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-secondary, rgba(0, 0, 0, 0.15));
+    overflow: hidden;
+}
+
+.prompt-bank-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.prompt-bank-summary::-webkit-details-marker {
+    display: none;
+}
+
+.prompt-card-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.prompt-card-meta {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.prompt-card-body {
+    padding: 0 1rem 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.prompt-situation {
+    margin: 0.75rem 0;
+    line-height: 1.6;
+    font-size: 0.9rem;
+}
+
+.prompt-stub {
+    margin: 0 0 0.75rem;
+    padding: 0.75rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+}
+
+.prompt-bullets {
+    margin: 0 0 0.75rem 1.1rem;
+    padding: 0;
+    font-size: 0.88rem;
+    line-height: 1.55;
+}
+
+.prompt-goals,
+.prompt-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+}
+
+.prompt-goal-tag,
+.prompt-tag {
+    font-size: 0.72rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--text-primary);
+}
+
+.prompt-tag {
+    background: rgba(16, 185, 129, 0.15);
+}
+
+.prompt-authenticity {
+    margin: 0.5rem 0 0;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+/* ========== 响应式断点 ========== */
+@media (max-width: 1024px) {
+    .container {
+        padding: var(--space-lg);
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: var(--space-md);
+    }
+    
+    .header {
+        padding: var(--space-md);
+    }
+    
+    .header h1 {
+        font-size: 1.4rem;
+    }
+    
+    .mode-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .gallery-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .two-column {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-bar {
+        flex-direction: column;
+        gap: var(--space-md);
+    }
+    
+    .grade-dropdown {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin-bottom: var(--space-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: var(--space-sm);
+    }
+    
+    .header h1 {
+        font-size: 1.2rem;
+    }
+}

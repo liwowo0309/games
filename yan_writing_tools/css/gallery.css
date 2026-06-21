@@ -1,0 +1,682 @@
+/**
+ * English Writing Studio - Gallery Styles
+ * 句子画廊、创作周刊、社交展示系统样式
+ */
+
+/* ========== 画廊容器 ========== */
+.gallery-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.gallery-header {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+    padding: var(--space-xl) 0;
+}
+
+.gallery-header h2 {
+    font-size: 2rem;
+    margin-bottom: var(--space-sm);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.gallery-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* ========== 画廊标签页 ========== */
+.gallery-tabs {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xl);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: var(--space-sm);
+}
+
+.gallery-tab {
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border-radius: var(--radius-md);
+    position: relative;
+}
+
+.gallery-tab:hover {
+    color: var(--text);
+    background: var(--bg-card);
+}
+
+.gallery-tab.active {
+    color: var(--primary-light);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.gallery-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: calc(-1 * var(--space-sm) - 1px);
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary);
+}
+
+.gallery-tab-badge {
+    background: var(--primary);
+    color: white;
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    margin-left: var(--space-xs);
+}
+
+/* ========== 句子卡片 ========== */
+.sentence-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.sentence-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.sentence-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-md);
+}
+
+.sentence-card-author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.sentence-card-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.sentence-card-author-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.sentence-card-author-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.sentence-card-date {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.sentence-card-badge {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--primary-light);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.sentence-card-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: var(--space-md);
+    color: var(--text);
+}
+
+.sentence-card-evolution {
+    background: var(--bg);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin-bottom: var(--space-md);
+    font-size: 0.85rem;
+}
+
+.sentence-card-evolution-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.sentence-card-evolution-content {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.sentence-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border);
+}
+
+.sentence-card-tags {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+}
+
+.sentence-card-tag {
+    background: var(--bg);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.sentence-card-actions {
+    display: flex;
+    gap: var(--space-md);
+}
+
+.sentence-card-action {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.sentence-card-action:hover {
+    color: var(--primary-light);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.sentence-card-action.liked {
+    color: var(--error);
+}
+
+.sentence-card-action.saved {
+    color: var(--warning);
+}
+
+/* ========== 编辑精选标记 ========== */
+.editor-pick-badge {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: var(--text-inverse);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ========== 本周热榜 ========== */
+.hot-sentence-card {
+    position: relative;
+}
+
+.hot-rank {
+    position: absolute;
+    top: -10px;
+    left: var(--space-md);
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--error), #dc2626);
+    color: white;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: var(--shadow-md);
+}
+
+.hot-rank.top3 {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
+.hot-rank.gold {
+    background: linear-gradient(135deg, #fcd34d, #fbbf24);
+}
+
+/* ========== 创作周刊 ========== */
+.weekly-report {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+    border: 2px solid var(--border);
+}
+
+.weekly-report-header {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 2px solid var(--border);
+}
+
+.weekly-report-title {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-sm);
+}
+
+.weekly-report-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.weekly-report-date {
+    background: var(--primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* 统计数据网格 */
+.weekly-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.weekly-stat-card {
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    text-align: center;
+    border: 1px solid var(--border);
+}
+
+.weekly-stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+.weekly-stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: var(--space-sm);
+}
+
+.weekly-stat-change {
+    font-size: 0.75rem;
+    color: var(--success);
+    margin-top: var(--space-xs);
+}
+
+.weekly-stat-change.negative {
+    color: var(--error);
+}
+
+/* 进化曲线 */
+.weekly-evolution {
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.weekly-evolution-title {
+    font-size: 1rem;
+    margin-bottom: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.weekly-evolution-chart {
+    height: 200px;
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    padding: var(--space-md);
+    gap: var(--space-sm);
+}
+
+.evolution-bar {
+    flex: 1;
+    background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    min-width: 30px;
+    position: relative;
+    transition: all var(--transition-base);
+}
+
+.evolution-bar:hover {
+    filter: brightness(1.2);
+}
+
+.evolution-bar-label {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+/* 最佳作品展示 */
+.weekly-best-work {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+    border: 2px solid var(--primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.weekly-best-work-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1rem;
+    margin-bottom: var(--space-md);
+    color: var(--primary-light);
+}
+
+.weekly-best-work-content {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    font-style: italic;
+    margin-bottom: var(--space-md);
+}
+
+.weekly-best-work-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* 新成就 */
+.weekly-achievements {
+    margin-bottom: var(--space-xl);
+}
+
+.weekly-achievements-title {
+    font-size: 1rem;
+    margin-bottom: var(--space-md);
+}
+
+.achievements-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.achievement-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    animation: fadeInUp 0.5s ease;
+}
+
+.achievement-badge-icon {
+    font-size: 1.5rem;
+}
+
+.achievement-badge-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.achievement-badge-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.achievement-badge-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* 分享区域 */
+.weekly-share {
+    text-align: center;
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border);
+}
+
+.weekly-share-title {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+.weekly-share-buttons {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-md);
+}
+
+.share-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.share-btn-wechat {
+    background: #07c160;
+    color: white;
+}
+
+.share-btn-wechat:hover {
+    background: #06ad56;
+    transform: translateY(-2px);
+}
+
+.share-btn-copy {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+.share-btn-copy:hover {
+    border-color: var(--primary);
+}
+
+/* ========== 挑战榜单 ========== */
+.leaderboard {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+}
+
+.leaderboard-header {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.leaderboard-title {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-sm);
+}
+
+.leaderboard-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.leaderboard-tabs {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+}
+
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--bg);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    transition: all var(--transition-fast);
+}
+
+.leaderboard-item:hover {
+    border-color: var(--primary);
+    transform: translateX(4px);
+}
+
+.leaderboard-rank {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-radius: var(--radius-full);
+    background: var(--bg-card);
+}
+
+.leaderboard-rank.top1 {
+    background: linear-gradient(135deg, #fcd34d, #fbbf24);
+    color: var(--text-inverse);
+}
+
+.leaderboard-rank.top2 {
+    background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+    color: var(--text-inverse);
+}
+
+.leaderboard-rank.top3 {
+    background: linear-gradient(135deg, #fdba74, #fb923c);
+    color: var(--text-inverse);
+}
+
+.leaderboard-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.leaderboard-info {
+    flex: 1;
+}
+
+.leaderboard-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.leaderboard-detail {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.leaderboard-score {
+    text-align: right;
+}
+
+.leaderboard-score-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-light);
+}
+
+.leaderboard-score-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* ========== 响应式调整 ========== */
+@media (max-width: 768px) {
+    .weekly-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .gallery-tabs {
+        overflow-x: auto;
+        padding-bottom: var(--space-sm);
+    }
+    
+    .gallery-tab {
+        white-space: nowrap;
+    }
+    
+    .leaderboard-item {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .weekly-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sentence-card-footer {
+        flex-direction: column;
+        gap: var(--space-sm);
+        align-items: flex-start;
+    }
+    
+    .share-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+}

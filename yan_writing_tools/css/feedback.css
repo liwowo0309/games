@@ -1,0 +1,386 @@
+/**
+ * English Writing Studio - Feedback System Styles
+ * 三明治反馈系统样式：夸赞、建议、邀请
+ */
+
+/* ========== 反馈容器 ========== */
+.sandwich-feedback {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-top: var(--space-lg);
+    border: 1px solid var(--border);
+}
+
+/* ========== 夸赞层（Praise） ========== */
+.feedback-praise {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+    border-left: 4px solid var(--success);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin-bottom: var(--space-md);
+}
+
+.feedback-praise-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+    color: var(--success);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.feedback-praise-content {
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.feedback-praise-highlight {
+    background: rgba(16, 185, 129, 0.2);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+}
+
+/* ========== 建议层（Suggestion） ========== */
+.feedback-suggestion {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+    border-left: 4px solid var(--primary);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin-bottom: var(--space-md);
+}
+
+.feedback-suggestion-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+    color: var(--primary-light);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.feedback-suggestion-content {
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.feedback-suggestion-example {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: var(--space-sm) var(--space-md);
+    margin-top: var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--primary-light);
+}
+
+/* ========== 邀请层（Invitation） ========== */
+.feedback-invitation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    border: 1px dashed var(--border);
+}
+
+.feedback-invitation-text {
+    color: var(--text-secondary);
+    font-style: italic;
+    font-size: 0.95rem;
+}
+
+.feedback-invitation-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.feedback-invitation-btn:hover {
+    background: var(--primary-dark);
+    transform: scale(1.05);
+}
+
+/* ========== 分数展示 ========== */
+.feedback-score {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--border);
+}
+
+.feedback-score-value {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.feedback-score-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.feedback-score-breakdown {
+    display: flex;
+    gap: var(--space-md);
+    margin-left: auto;
+}
+
+.score-dimension {
+    text-align: center;
+    padding: var(--space-sm);
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    min-width: 60px;
+}
+
+.score-dimension-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: block;
+}
+
+.score-dimension-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+/* ========== 维度评分颜色 ========== */
+.dimension-creativity .score-dimension-value {
+    color: #ec4899;
+}
+
+.dimension-fluency .score-dimension-value {
+    color: #10b981;
+}
+
+.dimension-complexity .score-dimension-value {
+    color: #f59e0b;
+}
+
+.dimension-accuracy .score-dimension-value {
+    color: #3b82f6;
+}
+
+.dimension-completeness .score-dimension-value {
+    color: #8b5cf6;
+}
+
+/* ========== 错误提示（温和版） ========== */
+.feedback-error-gentle {
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin-bottom: var(--space-sm);
+}
+
+.feedback-error-gentle-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--error-light);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: var(--space-sm);
+}
+
+.feedback-error-gentle-content {
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.feedback-error-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+}
+
+.feedback-error-option {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-sm) var(--space-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: 0.9rem;
+}
+
+.feedback-error-option:hover {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+/* ========== 进化图谱 ========== */
+.evolution-chart {
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-top: var(--space-md);
+}
+
+.evolution-chart-title {
+    text-align: center;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+.evolution-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.evolution-step {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border-left: 3px solid var(--border);
+}
+
+.evolution-step.original {
+    border-left-color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+.evolution-step.addition {
+    border-left-color: var(--success);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.evolution-step-arrow {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+}
+
+.evolution-step-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    min-width: 80px;
+}
+
+.evolution-step-content {
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+.evolution-step-highlight {
+    background: rgba(16, 185, 129, 0.2);
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+/* ========== 作品卡 ========== */
+.creation-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(99, 102, 241, 0.05) 100%);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.creation-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.creation-card-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: var(--space-md);
+    font-style: italic;
+}
+
+.creation-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.creation-card-author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.creation-card-stats {
+    display: flex;
+    gap: var(--space-md);
+}
+
+.creation-card-stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ========== 动画效果 ========== */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.pulse {
+    animation: pulse 0.5s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.5s ease;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.bounce {
+    animation: bounce 0.6s ease;
+}
