@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>我的游戏</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: "Noto Sans SC", system-ui, sans-serif;
+      color: #eaf1fb;
+      background: linear-gradient(160deg, #0f1826 0%, #1b2b44 55%, #24344f 100%);
+    }
+    .wrap { width: 100%; max-width: 420px; }
+    h1 { margin: 0 0 6px; font-size: 1.6rem; }
+    .sub { margin: 0 0 20px; font-size: 0.85rem; color: #9fb3cc; }
+    .card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+    .card strong { display: block; font-size: 1.15rem; margin-bottom: 4px; }
+    .card span { font-size: 0.8rem; color: #9fb3cc; line-height: 1.5; }
+    .play {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-weight: 700;
+      color: #1a1208;
+      background: linear-gradient(135deg, #f0c33c, #c9a227);
+    }
+    .tip { margin: 18px 0 0; font-size: 0.72rem; color: #7d90a8; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>我的游戏</h1>
+    <p class="sub">手机和电脑都能玩，进度存在本机浏览器里</p>
+
+    <a class="card" href="newgame/value_game/index.html">
+      <strong>🏙 都市大亨</strong>
+      <span>俯视 3D 街道经营。走进自己的店扩店、招人、领设备；客流高峰点客人赚大钱；目标链、宝箱和赛季通行证一路给奖励。</span>
+      <span class="play">开始玩</span>
+    </a>
+
+    <p class="tip">首次打开需要联网加载 3D 引擎；没网时会自动切换成简易街道模式，玩法一样。</p>
+  </div>
+</body>
+</html>
