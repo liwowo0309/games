@@ -1,11 +1,13 @@
 // Game constants
 const BLOCK_SIZE = 1;
-const WORLD_SIZE = 64; // Increased from 32 to 64 for bigger world
+const WORLD_SIZE = 192; // Twice as wide/deep as the previous world
 const CHUNK_HEIGHT = 16;
 const GRAVITY = 20;
 const JUMP_SPEED = 8;
-const MOVE_SPEED = 5;
+const MOVE_SPEED = 8;
 const REACH_DISTANCE = 5;
+const RENDER_DISTANCE = 56;
+const RENDER_REFRESH_DISTANCE = 8;
 
 // Animal types
 const AnimalType = {
@@ -257,6 +259,7 @@ class Game {
         this.fpsDisplay = 60;
         this.fpsUpdateTimer = 0;
         this.uiUpdateTimer = 0;
+        this.renderCenter = { x: null, z: null };
         
         this.init();
     }
@@ -270,7 +273,7 @@ class Game {
         
         // Setup scene
         this.scene.background = new THREE.Color(0x87CEEB);
-        this.scene.fog = new THREE.Fog(0x87CEEB, 0, 150); // Increased fog distance for bigger world
+        this.scene.fog = new THREE.Fog(0x87CEEB, 0, 150); // Keep distant blocks hidden for faster rendering
         
         // Setup camera
         this.camera.position.copy(this.player.position);
@@ -291,9 +294,6 @@ class Game {
         
         // Spawn animals
         this.spawnAnimals();
-        
-        // Spawn enemies
-        this.spawnEnemies();
         
         // Setup controls
         this.setupControls();
@@ -331,14 +331,11 @@ class Game {
                 }
                 
                 // Add occasional trees
-                if (Math.random() > 0.98 && height === CHUNK_HEIGHT) {
+                if (Math.random() > 0.965 && height === CHUNK_HEIGHT) {
                     this.generateTree(x, height, z);
                 }
             }
         }
-        
-        // Hide coins in the world
-        this.generateCoins();
         
         // Build meshes only for visible (exposed) blocks
         this.worldGenComplete = true;
@@ -391,13 +388,15 @@ class Game {
         const exposed = this.isBlockExposed(x, y, z);
         const existingMesh = this.blocks.get(key);
         
-        if (exposed && !existingMesh) {
+        const nearPlayer = this.isWithinRenderDistance(x, z);
+        
+        if (exposed && nearPlayer && !existingMesh) {
             const mesh = this.createBlockMesh(type);
             mesh.position.set(x, y, z);
             mesh.userData = { x, y, z, type };
             this.scene.add(mesh);
             this.blocks.set(key, mesh);
-        } else if (!exposed && existingMesh) {
+        } else if ((!exposed || !nearPlayer) && existingMesh) {
             this.scene.remove(existingMesh);
             this.blocks.delete(key);
         }
@@ -417,15 +416,52 @@ class Game {
     }
     
     buildVisibleMeshes() {
-        for (const key in this.world) {
-            const [x, y, z] = key.split(',').map(Number);
-            if (this.isBlockExposed(x, y, z)) {
-                const type = this.world[key];
-                const mesh = this.createBlockMesh(type);
-                mesh.position.set(x, y, z);
-                mesh.userData = { x, y, z, type };
-                this.scene.add(mesh);
-                this.blocks.set(key, mesh);
+        this.refreshRenderedWorld(true);
+    }
+    
+    isWithinRenderDistance(x, z) {
+        const centerX = this.renderCenter.x ?? this.player.position.x;
+        const centerZ = this.renderCenter.z ?? this.player.position.z;
+        return Math.abs(x - centerX) <= RENDER_DISTANCE && Math.abs(z - centerZ) <= RENDER_DISTANCE;
+    }
+    
+    refreshRenderedWorld(force = false) {
+        const centerX = Math.floor(this.player.position.x);
+        const centerZ = Math.floor(this.player.position.z);
+        
+        if (
+            !force &&
+            this.renderCenter.x !== null &&
+            Math.abs(centerX - this.renderCenter.x) < RENDER_REFRESH_DISTANCE &&
+            Math.abs(centerZ - this.renderCenter.z) < RENDER_REFRESH_DISTANCE
+        ) {
+            return;
+        }
+        
+        this.renderCenter = { x: centerX, z: centerZ };
+        
+        for (const [key, mesh] of Array.from(this.blocks)) {
+            const [x, , z] = key.split(',').map(Number);
+            if (!this.isWithinRenderDistance(x, z)) {
+                this.scene.remove(mesh);
+                this.blocks.delete(key);
+            }
+        }
+        
+        const minX = Math.max(0, centerX - RENDER_DISTANCE);
+        const maxX = Math.min(WORLD_SIZE - 1, centerX + RENDER_DISTANCE);
+        const minZ = Math.max(0, centerZ - RENDER_DISTANCE);
+        const maxZ = Math.min(WORLD_SIZE - 1, centerZ + RENDER_DISTANCE);
+        const maxY = CHUNK_HEIGHT + 12;
+        
+        for (let x = minX; x <= maxX; x++) {
+            for (let z = minZ; z <= maxZ; z++) {
+                for (let y = 0; y <= maxY; y++) {
+                    const key = `${x},${y},${z}`;
+                    if (this.world[key]) {
+                        this.updateBlockMesh(x, y, z);
+                    }
+                }
             }
         }
     }
@@ -926,39 +962,7 @@ class Game {
     }
     
     generateCoins() {
-        const numCoins = Math.floor(WORLD_SIZE * WORLD_SIZE * 0.05); // 5% of world area (more coins!)
-        this.totalCoins = numCoins;
-        
-        for (let i = 0; i < numCoins; i++) {
-            const x = Math.floor(Math.random() * WORLD_SIZE);
-            const z = Math.floor(Math.random() * WORLD_SIZE);
-            
-            // Different hiding strategies - more visible coins!
-            const strategy = Math.floor(Math.random() * 4);
-            
-            if (strategy === 0) {
-                // Underground (buried in stone) - less deep
-                const y = Math.floor(Math.random() * 5) + CHUNK_HEIGHT - 3; // Closer to surface
-                if (this.getBlock(x, y, z) === BlockType.STONE) {
-                    this.setBlock(x, y, z, BlockType.COIN);
-                }
-            } else if (strategy === 1) {
-                // In dirt layers - very shallow
-                const surface = this.findSurfaceHeight(x, z);
-                const y = Math.max(surface - 1, 2); // Just below surface
-                if (this.getBlock(x, y, z) === BlockType.DIRT) {
-                    this.setBlock(x, y, z, BlockType.COIN);
-                }
-            } else if (strategy === 2) {
-                // On surface everywhere (not just hills!)
-                const surface = this.findSurfaceHeight(x, z);
-                this.setBlock(x, surface, z, BlockType.COIN);
-            } else {
-                // On surface as well (doubled surface coins!)
-                const surface = this.findSurfaceHeight(x, z);
-                this.setBlock(x, surface, z, BlockType.COIN);
-            }
-        }
+        this.totalCoins = 0;
     }
     
     findSurfaceHeight(x, z) {
@@ -1885,6 +1889,7 @@ class Game {
         // Update camera
         this.camera.position.copy(this.player.position);
         this.camera.rotation.copy(this.player.rotation);
+        this.refreshRenderedWorld();
     }
     
     gameOver() {
@@ -1943,7 +1948,6 @@ class Game {
         }
         
         this.updateAnimals(deltaTime);
-        this.updateEnemies(deltaTime);
         
         // Health regeneration (1 HP every 5 seconds)
         this.player.healthRegenTimer += deltaTime;

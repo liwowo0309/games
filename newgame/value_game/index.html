@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>都市大亨</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="top-bar">
+      <button type="button" class="boss-chip" id="btnBoss" aria-label="我的形象">
+        <span class="boss-chip-avatar" id="chipAvatar"></span>
+        <span class="boss-chip-text">
+          <strong id="playerNameLabel">都市新锐</strong>
+          <small id="cityGrade">都市评级 C</small>
+        </span>
+      </button>
+      <div class="currency-row">
+        <div class="currency soft">
+          <span class="coin-badge" aria-hidden="true"></span>
+          <span id="softCoins">0</span>
+        </div>
+        <div class="currency gems">
+          <span class="gem-badge" aria-hidden="true"></span>
+          <span id="gems">0</span>
+        </div>
+        <div class="rate" id="incomeRate">+0/秒</div>
+      </div>
+      <button type="button" class="icon-btn" id="btnSettings" aria-label="设置">⚙</button>
+    </header>
+
+    <main class="main-scroll" id="mainScroll">
+      <section class="vista vista-3d" id="vista" aria-label="都市街道">
+        <div id="worldCanvas" class="world-canvas"></div>
+        <div class="world-status" id="worldStatus">正在加载街道…</div>
+        <div class="world-labels" id="worldLabels" hidden></div>
+        <button type="button" class="world-prompt hidden" id="worldPrompt"></button>
+        <div class="rush-banner hidden" id="rushBanner">
+          <span class="rush-tag" id="rushTag">客流高峰</span>
+          <span class="rush-time" id="rushTime">42s</span>
+          <span class="rush-combo" id="rushCombo">连击 ×0</span>
+          <div class="rush-bar"><i id="rushBar"></i></div>
+        </div>
+        <div class="guest-layer" id="guestLayer"></div>
+        <div class="combo-hud" id="comboHud">
+          <span id="comboText">自动接单中</span>
+          <span id="skillStats">已成交 0</span>
+        </div>
+        <button type="button" class="summon-btn" id="btnSummonRush">💎20 立刻召唤客流高峰</button>
+        <div class="float-layer" id="floatLayer"></div>
+        <div class="joy-wrap" id="joyWrap" aria-label="移动摇杆">
+          <div class="joy-base" id="joyBase">
+            <div class="joy-stick" id="joyStick"></div>
+          </div>
+          <p class="joy-hint">拖动摇杆 / WASD 移动 · 点店或按 E 进入</p>
+        </div>
+        <div class="boss-speech-overlay">
+          <div class="speech" id="bossSpeech">走进街道，点开店铺</div>
+        </div>
+        <!-- 兼容旧 UI 节点（隐藏） -->
+        <div class="legacy-hidden" hidden>
+          <div id="cityRow"></div>
+          <div id="peds"></div>
+          <div id="orders"></div>
+          <div id="bossFigure"></div>
+          <div id="chipAvatarGhost"></div>
+        </div>
+      </section>
+
+      <section class="goal-bar" id="goalBar">
+        <div class="goal-main">
+          <p class="goal-label">当前目标 <span id="goalIndex">1/33</span></p>
+          <p class="goal-name" id="goalName">把路边摊升到 Lv.3</p>
+          <div class="goal-track"><i id="goalFill"></i></div>
+          <p class="goal-prog" id="goalProg">0 / 3</p>
+        </div>
+        <div class="goal-side">
+          <button type="button" class="goal-btn" id="btnGoalClaim" disabled>进行中</button>
+          <button type="button" class="goal-skip" id="btnGoalSkip">💎30 立刻完成</button>
+        </div>
+        <button type="button" class="chest-ring" id="chestRing" aria-label="宝箱进度">
+          <span class="chest-ico" id="chestIco">📦</span>
+          <span class="chest-txt" id="chestTxt">0/14</span>
+        </button>
+      </section>
+
+      <div class="playtime-strip" id="playtimeStrip"></div>
+
+      <p class="street-hint" id="streetHint">大部分时间经营自家店：金币扩店/招牌 · 钻石雇人 · 达成条件领咖啡机</p>
+      <p class="market-line" id="marketHot">行情加载中…</p>
+
+      <section class="panel active" id="panelManage" data-panel="manage">
+        <div class="hq-board" id="hqBoard"></div>
+        <div class="strategy-strip" id="strategyStrip"></div>
+        <h3 class="subhead">业态升级</h3>
+        <div class="shop-grid" id="shopGrid"></div>
+      </section>
+
+      <section class="panel" id="panelStrategy" data-panel="strategy">
+        <h2 class="panel-title">经营决策</h2>
+        <p class="panel-desc">定价、方针、专精、供应链与限时引流</p>
+        <h3 class="subhead">定价</h3>
+        <div class="choice-grid" id="pricingChoices"></div>
+        <h3 class="subhead">方针 <small id="planCooldown"></small></h3>
+        <div class="choice-grid" id="planChoices"></div>
+        <h3 class="subhead">专精（二选一）</h3>
+        <div class="choice-grid" id="specChoices"></div>
+        <h3 class="subhead">供应链</h3>
+        <div class="event-card" id="supplyCard"></div>
+        <h3 class="subhead">风险机会</h3>
+        <div class="event-card" id="eventCard"></div>
+      </section>
+
+      <section class="panel" id="panelLook" data-panel="look">
+        <h2 class="panel-title">形象与总部</h2>
+        <p class="panel-desc">装扮是门面，也是变现核心</p>
+        <div class="look-preview" id="lookPreview"></div>
+        <label class="field">
+          <span>老板昵称</span>
+          <input type="text" id="nameInput" maxlength="10" placeholder="最多10字" />
+        </label>
+        <div class="option-block"><h3>发型</h3><div class="option-row" id="hairOptions"></div></div>
+        <div class="option-block"><h3>着装</h3><div class="option-row" id="outfitOptions"></div></div>
+        <div class="option-block"><h3>肤色</h3><div class="option-row" id="skinOptions"></div></div>
+        <div class="option-block"><h3>城区主题</h3><div class="option-row" id="themeOptions"></div></div>
+        <div class="option-block"><h3>边框</h3><div class="option-row" id="frameOptions"></div></div>
+        <div class="option-block"><h3>招牌</h3><div class="option-row" id="signOptions"></div></div>
+        <button type="button" class="primary-btn" id="btnSaveLook">保存形象</button>
+      </section>
+
+      <section class="panel" id="panelTasks" data-panel="tasks">
+        <h2 class="panel-title">每日目标</h2>
+        <p class="panel-desc">约 5～10 分钟完成</p>
+        <div id="taskList"></div>
+        <button type="button" class="primary-btn" id="btnSubDaily">领取月卡每日礼</button>
+      </section>
+
+      <section class="panel" id="panelPass" data-panel="pass">
+        <h2 class="panel-title">赛季通行证</h2>
+        <p class="panel-desc" id="passSeason">第一赛季 · 街区崛起</p>
+        <div class="pass-head" id="passHead"></div>
+        <div class="pass-rail" id="passRail"></div>
+        <h3 class="subhead">成长基金</h3>
+        <div class="fund-box" id="fundBox"></div>
+      </section>
+
+      <section class="panel" id="panelStore" data-panel="store">
+        <h2 class="panel-title">商店</h2>
+        <p class="panel-desc" id="iapModeLabel">沙盒模拟支付</p>
+        <p class="parent-note">本游戏无广告 · 内购需家长同意 · 原型不会真实扣款 · 无抽奖box</p>
+        <h3 class="subhead">今日限定（每日 0 点轮换）</h3>
+        <div id="dailyShopBox" class="daily-shop"></div>
+        <h3 class="subhead">充值与特权</h3>
+        <div id="shopProducts" class="product-grid"></div>
+        <div id="cosmeticList" class="cosmetic-box"></div>
+      </section>
+
+      <section class="panel" id="panelNet" data-panel="net">
+        <h2 class="panel-title">都市联机</h2>
+        <p class="panel-desc">云存档 · 周榜 · 参观（无私聊）</p>
+        <div class="row-btns">
+          <button type="button" class="mini-btn" id="btnCloudSync">同步云存档</button>
+          <button type="button" class="mini-btn" id="btnPullCloud">查看云存档</button>
+          <button type="button" class="mini-btn" id="boardSortWeek">周营收榜</button>
+          <button type="button" class="mini-btn" id="boardSortCos">装扮榜</button>
+        </div>
+        <ol class="rival-list" id="boardList"></ol>
+        <div class="visit-box" id="visitDetail"><p class="muted">点「参观」查看他人总部</p></div>
+      </section>
+
+      <section class="panel" id="panelHeavy" data-panel="heavy">
+        <h2 class="panel-title">商战大厅</h2>
+        <p class="panel-desc">重联机：商战 · 商盟 · 竞品挑战 · 拍卖</p>
+        <div class="event-card" id="warPanel"></div>
+        <div class="event-card" id="guildPanel"></div>
+        <div class="event-card" id="challengePanel"></div>
+        <div class="event-card" id="auctionPanel"></div>
+      </section>
+    </main>
+
+    <nav class="bottom-bar">
+      <button type="button" class="nav-btn active" data-panel="manage"><span class="nav-ico">🏙</span>经营</button>
+      <button type="button" class="nav-btn" data-panel="strategy"><span class="nav-ico">📊</span>决策</button>
+      <button type="button" class="nav-btn" data-panel="look"><span class="nav-ico">👔</span>形象</button>
+      <button type="button" class="nav-btn" data-panel="tasks"><span class="nav-ico">✅</span>任务</button>
+      <button type="button" class="nav-btn" data-panel="pass"><span class="nav-ico">🎫</span>通行证</button>
+      <button type="button" class="nav-btn" data-panel="store"><span class="nav-ico">💎</span>商店</button>
+      <button type="button" class="nav-btn" data-panel="net"><span class="nav-ico">🌐</span>联机</button>
+      <button type="button" class="nav-btn" data-panel="heavy"><span class="nav-ico">⚔</span>商战</button>
+    </nav>
+  </div>
+
+  <div class="modal hidden" id="offlineModal" role="dialog" aria-modal="true">
+    <div class="modal-card offline-card">
+      <div class="modal-boss" id="modalBoss"></div>
+      <h2>营业报告</h2>
+      <p class="modal-sub" id="offlineTime">你离开了一会儿</p>
+      <p class="offline-amount"><span id="offlineAmount">0</span></p>
+      <p class="modal-note">点领取入账（已扣运营成本）</p>
+      <button type="button" class="primary-btn" id="btnClaimOffline">确认结算</button>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="visitModal" role="dialog" aria-modal="true">
+    <div class="modal-card visit-card">
+      <p class="shock-tag" id="visitTag">别人的店</p>
+      <h2 id="visitTitle">咖啡店</h2>
+      <p class="modal-sub" id="visitOwner">店主：街坊</p>
+      <p class="visit-desc" id="visitDesc">点单吃喝，体验别人的经营</p>
+      <div class="visit-menu" id="visitMenu"></div>
+      <button type="button" class="ghost-btn" id="btnCloseVisit">离开店铺</button>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="shockModal" role="dialog" aria-modal="true">
+    <div class="modal-card shock-card" id="shockCard">
+      <p class="shock-tag" id="shockTag">冲击</p>
+      <h2 id="shockTitle">地租暴涨</h2>
+      <p class="modal-sub" id="shockSub">资产被削去一大截</p>
+      <p class="shock-change">
+        <span id="shockBefore">20K</span>
+        <span class="shock-arrow">→</span>
+        <span id="shockAfter">10K</span>
+      </p>
+      <p class="shock-delta" id="shockDelta">-10K</p>
+      <button type="button" class="primary-btn" id="btnCloseShock">知道了</button>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="chestModal" role="dialog" aria-modal="true">
+    <div class="modal-card chest-card">
+      <p class="shock-tag" id="chestTierTag">木箱</p>
+      <div class="chest-big" id="chestBig">📦</div>
+      <h2>开箱！</h2>
+      <p class="chest-reward" id="chestReward">+100 币</p>
+      <p class="modal-note" id="chestNext">继续经营，下一个箱子马上就来</p>
+      <button type="button" class="primary-btn" id="btnCloseChest">收下</button>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="settingsModal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <h2>设置</h2>
+      <p class="modal-sub">本地+云存档模拟 · 无广告</p>
+      <button type="button" class="primary-btn" id="btnOfflineEntry">查看离线收益</button>
+      <button type="button" class="danger-btn" id="btnResetSave">重置存档</button>
+      <button type="button" class="ghost-btn" id="btnCloseSettings">关闭</button>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+
+  <div class="boot-error hidden" id="bootError"></div>
+
+  <script>
+    window.addEventListener("error", function (e) {
+      var box = document.getElementById("bootError");
+      if (!box) return;
+      box.classList.remove("hidden");
+      box.textContent = "脚本出错：" + (e.message || "未知") + "（" + (e.filename || "").split("/").pop() + ":" + (e.lineno || 0) + "）";
+    });
+  </script>
+  <!-- Three.js：主源失败自动换备用源；全部失败则走 2D 街道 -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
+  <script>window.THREE || document.write('<script src="https://unpkg.com/three@0.159.0/build/three.min.js"><\/script>');</script>
+  <script>window.THREE || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');</script>
+  <script src="js/config.js"></script>
+  <script src="js/economy.js"></script>
+  <script src="js/avatar.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/net.js"></script>
+  <script src="js/iap.js"></script>
+  <script src="js/heavy.js"></script>
+  <script src="js/world3d.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
