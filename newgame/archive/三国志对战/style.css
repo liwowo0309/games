@@ -1,0 +1,160 @@
+:root {
+  --bg: #0b0f16;
+  --panel: #121722;
+  --text: #e8edf7;
+  --muted: #9ea6b8;
+  --border: #2a3242;
+  --wei: #1f7cc9;
+  --shu: #2c9e5d;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+h1, h2 {
+  margin: 0 0 6px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: #080b11;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 0;
+  min-height: calc(100vh - 64px);
+}
+
+.map-wrap {
+  padding: 16px;
+  border-right: 1px solid var(--border);
+}
+
+#map {
+  display: block;
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+  background: #10151f;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.hint {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.panel {
+  padding: 16px;
+  background: var(--panel);
+  overflow-y: auto;
+}
+
+.status p {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.panel h2 {
+  margin-top: 18px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+#city-info p,
+.statline {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.wei { background: rgba(31, 124, 201, 0.2); color: var(--wei); }
+.badge.shu { background: rgba(44, 158, 93, 0.2); color: var(--shu); }
+.badge.neutral { background: rgba(109, 118, 138, 0.25); color: #b8beca; }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+button {
+  border: 1px solid var(--border);
+  background: #1a2130;
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: #4a5870;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+button.primary {
+  background: #24344f;
+  border-color: #3d5578;
+}
+
+.log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.log li {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(42, 50, 66, 0.6);
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .map-wrap {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}

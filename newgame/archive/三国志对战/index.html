@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>三国志双人版</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Three Kingdoms Duel</h1>
+      <p class="subtitle">双人同屏 · 离线 · 占领对方都城获胜</p>
+    </div>
+    <button id="reset" type="button">重新开始</button>
+  </header>
+
+  <main class="layout">
+    <section class="map-wrap">
+      <canvas id="map" width="720" height="420" aria-label="Strategy map"></canvas>
+      <p id="hint" class="hint">Click a city to inspect or act.</p>
+    </section>
+
+    <aside class="panel">
+      <div class="status">
+        <p>回合 <span id="turn-number">1</span></p>
+        <p>当前 <span id="current-player">Wei</span></p>
+        <p>金币 <span id="gold">0</span></p>
+        <p>城池 <span id="city-count">0</span></p>
+      </div>
+
+      <h2>城市</h2>
+      <div id="city-info"><p>Select a city on the map.</p></div>
+
+      <h2>招兵</h2>
+      <div class="actions">
+        <button class="recruit" type="button" data-unit="infantry">步兵 (3金)</button>
+        <button class="recruit" type="button" data-unit="cavalry">骑兵 (5金)</button>
+        <button class="recruit" type="button" data-unit="archers">弓兵 (4金)</button>
+      </div>
+
+      <h2>移动</h2>
+      <div class="actions">
+        <button id="start-move" type="button">选出兵城市</button>
+        <button id="cancel-move" type="button">取消移动</button>
+        <button id="end-turn" type="button" class="primary">结束回合</button>
+      </div>
+
+      <h2>战报</h2>
+      <ul id="log" class="log"></ul>
+    </aside>
+  </main>
+
+  <script src="main.js"></script>
+</body>
+</html>

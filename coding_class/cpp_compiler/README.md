@@ -36,7 +36,7 @@ york_coding/
 轻量级回合制 RPG。使用方向键/WASD 在地图上探索，遭遇敌人自动进入战斗，收集药水恢复生命。
 
 ### Three Kingdoms Duel — 三国志双人对战
-`newgame/main.js`
+`newgame/archive/三国志对战/index.html`
 
 双人同屏策略游戏。轮流招兵、调兵、攻城，占领对方都城即获胜。
 
