@@ -1,0 +1,13 @@
+{
+  "name": "survival-arena-server",
+  "version": "0.1.0",
+  "description": "疾锋战区 — 16 人房间服",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "我的虚拟书架",
+    "navigationBarBackgroundColor": "#3b2416",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#1a120d",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

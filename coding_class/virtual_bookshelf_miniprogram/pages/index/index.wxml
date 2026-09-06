@@ -1,0 +1,68 @@
+<view class="page">
+  <view class="title">我的虚拟书架</view>
+  <view class="subtitle">输入书名，把书放到架子上。点一本书可以查看或拿走。</view>
+
+  <view class="panel">
+    <view class="field">
+      <text class="label">书名</text>
+      <input
+        class="input"
+        value="{{title}}"
+        maxlength="20"
+        placeholder="例如：小王子"
+        placeholder-class="placeholder"
+        confirm-type="done"
+        bindinput="onTitleInput"
+      />
+    </view>
+    <view class="field">
+      <text class="label">作者（可选）</text>
+      <input
+        class="input"
+        value="{{author}}"
+        maxlength="16"
+        placeholder="例如：圣埃克苏佩里"
+        placeholder-class="placeholder"
+        confirm-type="done"
+        bindinput="onAuthorInput"
+      />
+    </view>
+    <view class="actions">
+      <button class="btn btn-add" bindtap="addBook">放到书架</button>
+      <button class="btn btn-clear" bindtap="clearShelf">清空书架</button>
+    </view>
+    <view class="stats">{{stats}}</view>
+  </view>
+
+  <view class="bookshelf">
+    <view class="shelf" wx:for="{{shelves}}" wx:key="id">
+      <view wx:if="{{item.empty}}" class="empty-hint">{{item.hint}}</view>
+      <view
+        wx:else
+        class="book {{book.justAdded ? 'just-added' : ''}}"
+        wx:for="{{item.books}}"
+        wx:for-item="book"
+        wx:key="id"
+        style="background: {{book.color}};"
+        hover-class="book-hover"
+        data-id="{{book.id}}"
+        bindtap="openBook"
+      >
+        <text class="book-title">{{book.title}}</text>
+      </view>
+      <view class="shelf-board"></view>
+    </view>
+  </view>
+</view>
+
+<view class="modal-mask" wx:if="{{showModal}}" bindtap="hideModal">
+  <view class="modal" catchtap="noop">
+    <view class="modal-title">{{selected.title}}</view>
+    <view class="modal-line">{{selected.authorText}}</view>
+    <view class="modal-line">{{selected.timeText}}</view>
+    <view class="modal-actions">
+      <button class="btn btn-close" bindtap="hideModal">关闭</button>
+      <button class="btn btn-remove" bindtap="removeBook">从书架拿走</button>
+    </view>
+  </view>
+</view>

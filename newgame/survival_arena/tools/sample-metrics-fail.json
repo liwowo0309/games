@@ -1,0 +1,12 @@
+{
+  "exportDate": "2026-12-15",
+  "sampleUsers": 180,
+  "d1_retention": 18,
+  "d7_retention": 4,
+  "session_length": 12,
+  "matches_per_day": 1.2,
+  "ad_views_per_day": 0.5,
+  "iap_conversion": 0,
+  "shop_click_rate": 3,
+  "ad_ecpm": 10
+}

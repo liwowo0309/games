@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>疾锋战区 — Survival Arena</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <div id="ui">
+    <div class="panel" id="hud-left">
+      <strong>疾锋战区</strong> v0.3<br />
+      <span id="hudTeam">模式</span><br />
+      HP <span id="hudHp">100</span> ·
+      <span id="hudWeapon">无武器</span><br />
+      弹药 <span id="hudAmmo">—</span> ·
+      币 <span id="hudCoins">0</span>
+    </div>
+    <div class="panel" id="hud-right">
+      <span id="hudAlive">—</span><br />
+      击杀 <span id="hudKills">0</span><br />
+      时间 <span id="hudTime">0:00</span><br />
+      <span id="hudZone">大厅</span>
+    </div>
+  </div>
+
+  <div id="zoneWarn">⚠ 离开安全区</div>
+  <div id="parachuteHint" class="center-hint hidden">
+    🪂 跳伞中 — A/D 左右移动选择落点 · 落地后先进建筑搜装备
+  </div>
+  <div id="lootHint" class="center-hint hidden">
+    📦 搜刮期 · 进入便利店/车库/住宅拾取武器 · 蓝队队友不会误伤
+  </div>
+  <div id="buildingHint" class="bottom-hint"></div>
+  <div id="pickupMsg" class="pickup-msg"></div>
+
+  <div id="startScreen">
+    <h1>疾锋战区</h1>
+    <p class="menu-coins">战区币 <strong id="menuCoins">0</strong>
+      <button class="btn-link" id="btnBuyCoins">充值购币</button>
+    </p>
+
+    <h2 class="section-title">选择模式</h2>
+    <div id="modeList" class="mode-grid"></div>
+
+    <div class="menu-actions">
+      <button class="btn btn-primary btn-lg" id="btnPlay">开始游戏</button>
+      <button class="btn btn-shop" id="btnShopStart">商店</button>
+      <button class="btn" id="btnExport" style="background:#333;color:#fff;">导出埋点</button>
+    </div>
+    <p class="controls-hint">
+      WASD 移动 · 鼠标射击 · Q/E 切枪 · R 换弹<br />
+      5 种玩法 · 人民币购币 + 金币商城 + 广告
+    </p>
+  </div>
+
+  <div id="matchOverlay" class="hidden">
+    <h1 id="matchTitle">对局结束</h1>
+    <div class="rank" id="matchRank">#8</div>
+    <div class="stats" id="matchStats">击杀 0 · 存活 0s</div>
+    <button class="btn btn-primary" id="btnAgain">返回大厅</button>
+    <button class="btn btn-ad" id="btnDouble">看广告 · 奖励翻倍</button>
+    <button class="btn btn-shop" id="btnShop">商店</button>
+  </div>
+
+  <div id="shopModal">
+    <div class="modal-box shop-wide">
+      <h2>战区商店</h2>
+      <div class="shop-tabs">
+        <button class="shop-tab active" data-tab="coins">充值购币</button>
+        <button class="shop-tab" data-tab="spend">金币商城</button>
+        <button class="shop-tab" data-tab="iap">直购礼包</button>
+        <button class="shop-tab" data-tab="ad">免费得币</button>
+      </div>
+      <div id="shopContent"></div>
+      <button class="btn btn-primary" id="btnCloseShop" style="margin-top:16px;">关闭</button>
+    </div>
+  </div>
+
+  <div id="adModal">
+    <div class="modal-box">
+      <h2>激励视频</h2>
+      <p id="adModalMsg">播放中…</p>
+      <button class="btn" id="btnCloseAd">关闭</button>
+    </div>
+  </div>
+
+  <script src="js/weapons.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/zone.js"></script>
+  <script src="js/draw.js"></script>
+  <script src="js/modes.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/monetization.js"></script>
+  <script src="js/bots.js"></script>
+  <script src="js/alternate_modes.js"></script>
+  <script src="js/game.js"></script>
+  <script>
+    function renderModeList() {
+      const list = document.getElementById('modeList');
+      if (!list) return;
+      list.innerHTML = getModeList().map((m) => `
+        <div class="mode-card ${m.id === selectedModeId ? 'selected' : ''}" data-mode="${m.id}">
+          <span class="mode-icon">${m.icon}</span>
+          <strong>${m.name}</strong>
+          <small>${m.desc}</small>
+        </div>
+      `).join('');
+      list.querySelectorAll('.mode-card').forEach((card) => {
+        card.addEventListener('click', () => {
+          setSelectedMode(card.dataset.mode);
+          renderModeList();
+        });
+      });
+    }
+    renderModeList();
+    document.getElementById('btnShopStart')?.addEventListener('click', () => Monetization.openShop('coins'));
+    document.getElementById('btnBuyCoins')?.addEventListener('click', () => Monetization.openShop('coins'));
+    document.querySelectorAll('.shop-tab').forEach((tab) => {
+      tab.addEventListener('click', () => Monetization.renderShopTab(tab.dataset.tab));
+    });
+  </script>
+</body>
+</html>

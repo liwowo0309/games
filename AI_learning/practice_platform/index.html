@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>表情特工学院 · AI实操闯关</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- 地图 / 选关 -->
+  <div id="view-map" class="view">
+    <header class="game-header">
+      <div class="brand">
+        <span class="brand-mark">AI</span>
+        <div>
+          <h1>表情特工学院</h1>
+          <p>边玩边学 · 闯关练 AI 表情识别</p>
+        </div>
+      </div>
+      <div class="player-hud">
+        <div class="hud-chip">⭐ <strong id="hud-stars">0</strong></div>
+        <div class="hud-chip">通关 <strong id="hud-cleared">0</strong>/<span id="hud-total">0</span></div>
+        <button type="button" class="btn btn-ghost" id="btn-reset-progress">重置进度</button>
+      </div>
+    </header>
+
+    <section class="story-banner" id="story-banner">
+      <div class="story-avatar" aria-hidden="true">🤖</div>
+      <div>
+        <h2 id="mentor-title">导师小智</h2>
+        <p id="mentor-text">欢迎加入表情特工学院！通关每一关，学会像决赛一样操作 AI 表情识别。先从第 1 关开始吧！</p>
+      </div>
+    </section>
+
+    <section class="world-map">
+      <div class="path-line" aria-hidden="true"></div>
+      <div class="level-path" id="level-path"></div>
+    </section>
+
+    <p class="footer-note">检测在浏览器本地完成，不会上传照片。正式比赛请以官方平台为准。</p>
+  </div>
+
+  <!-- 关卡开场（学知识点） -->
+  <div id="view-brief" class="view hidden">
+    <div class="brief-card">
+      <div class="brief-stage" id="brief-stage">第 1 关</div>
+      <h2 id="brief-title">关卡标题</h2>
+      <p class="brief-story" id="brief-story"></p>
+      <div class="learn-box">
+        <h3>📘 本关要学</h3>
+        <p id="brief-tip"></p>
+      </div>
+      <div class="mission-box">
+        <h3>🎯 通关任务</h3>
+        <p id="brief-mission"></p>
+      </div>
+      <div class="brief-actions">
+        <button type="button" class="btn btn-ghost" id="btn-brief-back">返回地图</button>
+        <button type="button" class="btn btn-primary btn-lg" id="btn-brief-start">出发挑战！</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 挑战页 -->
+  <div id="view-play" class="view hidden">
+    <div class="exam-topbar">
+      <button type="button" class="btn btn-ghost" id="btn-back-map">← 地图</button>
+      <div class="exam-progress">
+        <span id="play-level-text">第 1 关</span>
+        <div class="progress-track"><div class="progress-fill" id="play-progress-bar"></div></div>
+      </div>
+      <div class="lives" id="lives" title="剩余识别次数"></div>
+    </div>
+
+    <div class="prompt-banner">
+      <div class="prompt-label" id="prompt-label">关卡任务</div>
+      <p class="prompt-text" id="prompt-text"></p>
+    </div>
+
+    <div class="tool-panel">
+      <div class="tool-header">
+        <h2 id="tool-title">人脸表情识别</h2>
+        <div class="tool-actions">
+          <button type="button" class="btn btn-score" id="btn-scoring">评分逻辑</button>
+          <button type="button" class="btn btn-outline" id="btn-restart">重新挑战</button>
+        </div>
+      </div>
+
+      <div class="tool-body">
+        <div class="camera-col">
+          <div class="camera-frame" id="camera-frame">
+            <video id="video" autoplay muted playsinline></video>
+            <canvas id="overlay"></canvas>
+            <div class="camera-placeholder" id="camera-placeholder">
+              <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
+                <rect x="8" y="18" width="48" height="34" rx="4" fill="none" stroke="#9bb8d4" stroke-width="3"/>
+                <circle cx="32" cy="35" r="10" fill="none" stroke="#9bb8d4" stroke-width="3"/>
+                <path d="M22 18l4-8h12l4 8" fill="none" stroke="#9bb8d4" stroke-width="3"/>
+              </svg>
+              <p>点击下方按钮开启摄像头并识别</p>
+            </div>
+            <div class="model-loading hidden" id="model-loading">
+              <div class="spinner"></div>
+              <p>正在加载 AI 模型…</p>
+            </div>
+          </div>
+          <div class="camera-meta">
+            <span>识别次数：<strong id="attempt-count">0</strong> / <strong id="attempt-max">3</strong></span>
+            <span id="status-text" class="status-idle">等待识别</span>
+          </div>
+          <button type="button" class="btn btn-start" id="btn-start">开始识别</button>
+        </div>
+
+        <div class="result-col">
+          <div class="meta-row">
+            <div>性别：<strong id="result-gender">—</strong></div>
+            <div>年龄：<strong id="result-age">—</strong></div>
+          </div>
+          <h3>面部表情识别</h3>
+          <ul class="emotion-list" id="emotion-list"></ul>
+          <div class="verdict" id="verdict"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通关结算 -->
+  <div id="view-clear" class="view hidden">
+    <div class="clear-card" id="clear-card">
+      <div class="clear-burst" aria-hidden="true">✨</div>
+      <h2 id="clear-title">关卡通过！</h2>
+      <div class="star-row" id="star-row"></div>
+      <p class="clear-msg" id="clear-msg"></p>
+      <div class="learn-box compact">
+        <h3>💡 学到了什么</h3>
+        <p id="clear-learn"></p>
+      </div>
+      <div class="brief-actions">
+        <button type="button" class="btn btn-outline" id="btn-clear-map">返回地图</button>
+        <button type="button" class="btn btn-primary btn-lg" id="btn-clear-next">下一关 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 全通结局 -->
+  <div id="view-ending" class="view hidden">
+    <div class="clear-card ending">
+      <div class="clear-burst">🏆</div>
+      <h2>恭喜毕业！</h2>
+      <p class="clear-msg">你已经打通表情特工学院全部关卡，掌握了决赛常见的「人脸表情识别」实操套路。</p>
+      <p class="ending-stats">累计星星 <strong id="ending-stars">0</strong> · 特工等级 <strong id="ending-rank">表情学徒</strong></p>
+      <div class="brief-actions">
+        <button type="button" class="btn btn-primary btn-lg" id="btn-ending-map">回到学院地图</button>
+      </div>
+    </div>
+  </div>
+
+  <dialog id="scoring-dialog">
+    <form method="dialog" class="dialog-body">
+      <h3>评分逻辑 · 通关秘籍</h3>
+      <div id="scoring-content"></div>
+      <button type="submit" class="btn btn-primary">知道了</button>
+    </form>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

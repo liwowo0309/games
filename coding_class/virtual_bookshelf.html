@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的虚拟书架</title>
+  <style>
+    :root {
+      --wood-dark: #3b2416;
+      --wood: #6b3e22;
+      --wood-light: #8b5a33;
+      --wood-highlight: #c48a55;
+      --room: #1a120d;
+      --paper: #f4ead7;
+      --ink: #2a1c12;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+      color: var(--paper);
+      background:
+        radial-gradient(ellipse at top, #3a2618 0%, var(--room) 55%),
+        repeating-linear-gradient(
+          90deg,
+          #1c130e 0px,
+          #1c130e 18px,
+          #18110c 18px,
+          #18110c 36px
+        );
+    }
+
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 16px 48px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      text-align: center;
+      font-size: 2rem;
+      letter-spacing: 0.12em;
+      text-shadow: 0 2px 0 #0008;
+    }
+
+    .subtitle {
+      text-align: center;
+      margin: 0 0 22px;
+      color: #d7c4a8;
+      font-size: 0.95rem;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, #4a2e1c, #321e13);
+      border: 2px solid #c9a06a;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 30px #0008;
+      margin-bottom: 22px;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    label {
+      font-size: 0.9rem;
+      color: #f0d9b5;
+    }
+
+    input {
+      flex: 1;
+      min-width: 160px;
+      padding: 10px 12px;
+      border: 1px solid #a67c52;
+      border-radius: 8px;
+      background: #f7efe2;
+      color: var(--ink);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #efd3a0;
+      box-shadow: 0 0 0 3px #efd3a033;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .btn-add {
+      background: linear-gradient(180deg, #e8b86a, #c4842d);
+      color: #3a230f;
+    }
+
+    .btn-add:hover { filter: brightness(1.08); }
+
+    .btn-clear {
+      background: #5a3220;
+      color: #f4ead7;
+      border: 1px solid #a67c52;
+    }
+
+    .stats {
+      margin-top: 10px;
+      color: #e6d3b5;
+      font-size: 0.92rem;
+    }
+
+    .bookshelf {
+      background: linear-gradient(180deg, #5a341f, #3d2315 40%, #2d1a10);
+      border: 14px solid #4a2a18;
+      border-image: none;
+      border-radius: 8px;
+      padding: 18px 16px 10px;
+      box-shadow:
+        inset 0 0 40px #0008,
+        0 18px 40px #000a,
+        0 0 0 6px #7a4a28,
+        0 0 0 10px #2a160d;
+    }
+
+    .shelf {
+      position: relative;
+      min-height: 168px;
+      display: flex;
+      align-items: flex-end;
+      gap: 5px;
+      padding: 0 8px 14px;
+      margin-bottom: 22px;
+    }
+
+    .shelf::after {
+      content: "";
+      position: absolute;
+      left: -6px;
+      right: -6px;
+      bottom: 0;
+      height: 14px;
+      background: linear-gradient(180deg, var(--wood-highlight), var(--wood) 40%, var(--wood-dark));
+      border-radius: 2px;
+      box-shadow: 0 8px 10px #0007;
+    }
+
+    .empty-hint {
+      width: 100%;
+      text-align: center;
+      color: #cbb394;
+      padding-bottom: 18px;
+      font-size: 0.95rem;
+    }
+
+    .book {
+      width: 38px;
+      height: 142px;
+      border-radius: 3px 4px 2px 2px;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 4px;
+      color: #fff8e8;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      box-shadow:
+        inset -6px 0 8px #0005,
+        inset 4px 0 4px #fff2,
+        3px 4px 6px #0006;
+      transform-origin: bottom center;
+      transition: transform 0.18s ease, filter 0.18s ease;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .book:hover {
+      transform: translateY(-10px) rotate(-2deg);
+      filter: brightness(1.12);
+      z-index: 2;
+    }
+
+    .book.just-added {
+      animation: slideIn 0.45s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-40px) scale(0.7); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .modal-mask {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #0008;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 10;
+    }
+
+    .modal-mask.show { display: flex; }
+
+    .modal {
+      width: min(420px, 100%);
+      background: #f7efe2;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 16px 40px #0009;
+    }
+
+    .modal h2 {
+      margin: 0 0 8px;
+      font-size: 1.25rem;
+    }
+
+    .modal p {
+      margin: 6px 0;
+      color: #5a4330;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .btn-close {
+      background: #d7c4a8;
+      color: #3a230f;
+    }
+
+    .btn-remove {
+      background: #b33a2b;
+      color: white;
+    }
+
+    @media (max-width: 640px) {
+      .book { width: 32px; height: 128px; font-size: 12px; }
+      .shelf { min-height: 150px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>我的虚拟书架</h1>
+    <p class="subtitle">输入书名，把书放到架子上。点一本书可以查看或拿走。</p>
+
+    <div class="panel">
+      <form id="addForm" class="form-row">
+        <label for="titleInput">书名</label>
+        <input id="titleInput" type="text" maxlength="20" placeholder="例如：小王子" required autocomplete="off">
+        <label for="authorInput">作者（可选）</label>
+        <input id="authorInput" type="text" maxlength="16" placeholder="例如：圣埃克苏佩里" autocomplete="off">
+        <button class="btn-add" type="submit">放到书架</button>
+        <button class="btn-clear" type="button" id="clearBtn">清空书架</button>
+      </form>
+      <div class="stats" id="stats">书架上还没有书。</div>
+    </div>
+
+    <div class="bookshelf" id="bookshelf"></div>
+  </div>
+
+  <div class="modal-mask" id="modalMask">
+    <div class="modal">
+      <h2 id="modalTitle"></h2>
+      <p id="modalAuthor"></p>
+      <p id="modalTime"></p>
+      <div class="modal-actions">
+        <button class="btn-close" type="button" id="closeModal">关闭</button>
+        <button class="btn-remove" type="button" id="removeBook">从书架拿走</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const COLORS = [
+      "#7b2d26", "#1f4e5f", "#2e5a3c", "#8a5a12",
+      "#3d2b56", "#6b2d5b", "#254e70", "#5c3317",
+      "#8c2f39", "#1b4332", "#4a3f35", "#0f4c5c"
+    ];
+    const SHELF_CAPACITY = 14;
+    const STORAGE_KEY = "virtual-bookshelf-books";
+
+    const titleInput = document.getElementById("titleInput");
+    const authorInput = document.getElementById("authorInput");
+    const addForm = document.getElementById("addForm");
+    const clearBtn = document.getElementById("clearBtn");
+    const bookshelfEl = document.getElementById("bookshelf");
+    const statsEl = document.getElementById("stats");
+    const modalMask = document.getElementById("modalMask");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalAuthor = document.getElementById("modalAuthor");
+    const modalTime = document.getElementById("modalTime");
+    const closeModal = document.getElementById("closeModal");
+    const removeBookBtn = document.getElementById("removeBook");
+
+    let books = loadBooks();
+    let selectedId = null;
+
+    function loadBooks() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function saveBooks() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+    }
+
+    function colorForTitle(title) {
+      let sum = 0;
+      for (let i = 0; i < title.length; i++) sum += title.charCodeAt(i);
+      return COLORS[sum % COLORS.length];
+    }
+
+    function render() {
+      bookshelfEl.innerHTML = "";
+      const shelfCount = Math.max(3, Math.ceil(books.length / SHELF_CAPACITY) || 3);
+
+      for (let s = 0; s < shelfCount; s++) {
+        const shelf = document.createElement("div");
+        shelf.className = "shelf";
+        const slice = books.slice(s * SHELF_CAPACITY, (s + 1) * SHELF_CAPACITY);
+
+        if (slice.length === 0) {
+          const hint = document.createElement("div");
+          hint.className = "empty-hint";
+          hint.textContent = s === 0 && books.length === 0
+            ? "这层还是空的，输入书名后点「放到书架」"
+            : "这层还可以继续放书";
+          shelf.appendChild(hint);
+        } else {
+          slice.forEach((book) => {
+            const el = document.createElement("button");
+            el.type = "button";
+            el.className = "book";
+            if (book.justAdded) el.classList.add("just-added");
+            el.style.background = book.color;
+            el.title = book.title;
+            el.textContent = book.title;
+            el.addEventListener("click", () => openModal(book.id));
+            shelf.appendChild(el);
+          });
+        }
+        bookshelfEl.appendChild(shelf);
+      }
+
+      books.forEach((book) => { book.justAdded = false; });
+      statsEl.textContent = books.length
+        ? `书架上现在有 ${books.length} 本书。`
+        : "书架上还没有书。";
+    }
+
+    function addBook(title, author) {
+      const cleanTitle = title.trim();
+      if (!cleanTitle) return;
+      books.push({
+        id: Date.now() + "-" + Math.random().toString(16).slice(2),
+        title: cleanTitle,
+        author: author.trim(),
+        color: colorForTitle(cleanTitle),
+        addedAt: new Date().toISOString(),
+        justAdded: true
+      });
+      saveBooks();
+      render();
+    }
+
+    function openModal(id) {
+      const book = books.find((item) => item.id === id);
+      if (!book) return;
+      selectedId = id;
+      modalTitle.textContent = book.title;
+      modalAuthor.textContent = book.author ? "作者：" + book.author : "作者：未填写";
+      modalTime.textContent = "放入时间：" + new Date(book.addedAt).toLocaleString("zh-CN");
+      modalMask.classList.add("show");
+    }
+
+    function hideModal() {
+      selectedId = null;
+      modalMask.classList.remove("show");
+    }
+
+    addForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      addBook(titleInput.value, authorInput.value);
+      titleInput.value = "";
+      authorInput.value = "";
+      titleInput.focus();
+    });
+
+    clearBtn.addEventListener("click", () => {
+      if (!books.length) return;
+      if (confirm("确定要把书架上的书全部拿走吗？")) {
+        books = [];
+        saveBooks();
+        render();
+      }
+    });
+
+    closeModal.addEventListener("click", hideModal);
+    modalMask.addEventListener("click", (event) => {
+      if (event.target === modalMask) hideModal();
+    });
+
+    removeBookBtn.addEventListener("click", () => {
+      books = books.filter((book) => book.id !== selectedId);
+      saveBooks();
+      hideModal();
+      render();
+    });
+
+    render();
+    titleInput.focus();
+  </script>
+</body>
+</html>
