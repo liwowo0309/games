@@ -1,0 +1,19 @@
+{
+  "name": "开口生活",
+  "short_name": "开口生活",
+  "description": "在会长大的生活里，用英语把今天的事说完",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6efe4",
+  "theme_color": "#e07a5f",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
