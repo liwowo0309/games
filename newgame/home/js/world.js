@@ -540,11 +540,19 @@ const LifeWorld = (() => {
     (ROOMS[room].doors || []).forEach(drawDoor);
     (ROOMS[room].stalls || []).forEach(drawStallMark);
     Object.keys(roomNpcs()).forEach((id) => {
-      const npc = LifeNpcs[id];
       const jump = id === "sister" ? effects.jump : 0;
-      drawNpc(id, roomNpcs()[id], npc.color, now, jump);
+      drawNpc(id, roomNpcs()[id], now, jump);
     });
-    drawPerson(player.x, player.y, "#4c7cf0", LifeState.data.name || "You", 0, now, true);
+    drawCute(
+      player.x,
+      player.y,
+      lookOf("player"),
+      LifeState.data.name || "You",
+      0,
+      now,
+      true,
+      Boolean(hold || target)
+    );
     labels();
     ctx.restore();
   }
@@ -1050,52 +1058,505 @@ const LifeWorld = (() => {
     });
   }
 
-  function drawNpc(id, pos, color, now, jump = 0) {
+  const LOOKS = {
+    player: {
+      skin: "#ffd7b5",
+      hair: "#5b3a29",
+      shirt: "#5b8def",
+      pants: "#3d5a80",
+      shoe: "#2f3542",
+      hairStyle: "kid",
+      size: 1,
+      cheeks: true,
+      vibe: "happy"
+    },
+    mom: {
+      skin: "#ffd7b5",
+      hair: "#4a2f22",
+      shirt: "#e07a9a",
+      pants: "#c45d7a",
+      shoe: "#7a4458",
+      apron: "#fff3e8",
+      hairStyle: "mom",
+      size: 1.08,
+      cheeks: true,
+      vibe: "warm"
+    },
+    dad: {
+      skin: "#f2c29b",
+      hair: "#2f2a28",
+      shirt: "#3d5a80",
+      pants: "#2b3f58",
+      shoe: "#1d2733",
+      hairStyle: "dad",
+      size: 1.12,
+      glasses: true,
+      vibe: "calm"
+    },
+    grandma: {
+      skin: "#f6d2b0",
+      hair: "#d9d2c5",
+      shirt: "#c9a27a",
+      pants: "#a98467",
+      shoe: "#7a6556",
+      hairStyle: "grandma",
+      size: 1.02,
+      glasses: true,
+      cheeks: true,
+      vibe: "kind"
+    },
+    sister: {
+      skin: "#ffd7b5",
+      hair: "#6b3fa0",
+      shirt: "#c77dff",
+      pants: "#9b5de5",
+      shoe: "#5a2d91",
+      hairStyle: "twin",
+      size: 0.9,
+      cheeks: true,
+      bow: "#ff8fab",
+      vibe: "spark"
+    },
+    clerk: {
+      skin: "#f2c29b",
+      hair: "#3a2f27",
+      shirt: "#2a9d8f",
+      pants: "#1d6f66",
+      shoe: "#164e48",
+      apron: "#fff8ee",
+      hairStyle: "short",
+      size: 1.05,
+      vibe: "smile"
+    },
+    vendor: {
+      skin: "#ffd7b5",
+      hair: "#5b3a29",
+      shirt: "#f4a261",
+      pants: "#e76f51",
+      shoe: "#9c4a34",
+      hairStyle: "vendor",
+      hat: "#e9c46a",
+      size: 1.05,
+      cheeks: true,
+      vibe: "cheer"
+    },
+    classmate: {
+      skin: "#f2c29b",
+      hair: "#3a2f27",
+      shirt: "#f4a261",
+      pants: "#d0894a",
+      shoe: "#6b4226",
+      hairStyle: "boy",
+      size: 0.98,
+      vibe: "happy"
+    },
+    teacher: {
+      skin: "#ffd7b5",
+      hair: "#3d2b1f",
+      shirt: "#457b9d",
+      pants: "#2f5470",
+      shoe: "#1d3557",
+      hairStyle: "teacher",
+      glasses: true,
+      size: 1.08,
+      vibe: "warm"
+    },
+    mia: {
+      skin: "#ffd7b5",
+      hair: "#6b2d4a",
+      shirt: "#ef476f",
+      pants: "#d62856",
+      shoe: "#8b1e3f",
+      hairStyle: "mia",
+      size: 0.95,
+      cheeks: true,
+      clip: "#ffd166",
+      vibe: "spark"
+    },
+    ken: {
+      skin: "#f2c29b",
+      hair: "#2f2a28",
+      shirt: "#e76f51",
+      pants: "#2a9d8f",
+      shoe: "#1d3557",
+      hairStyle: "sport",
+      size: 1.02,
+      ball: true,
+      vibe: "cheer"
+    },
+    amy: {
+      skin: "#ffd7b5",
+      hair: "#3a2f27",
+      shirt: "#2a9d8f",
+      pants: "#1b7a70",
+      shoe: "#14564f",
+      hairStyle: "pony",
+      size: 0.98,
+      cheeks: true,
+      vibe: "cheer"
+    },
+    librarian: {
+      skin: "#f6d2b0",
+      hair: "#5c4033",
+      shirt: "#8d6e53",
+      pants: "#6d5843",
+      shoe: "#4a3728",
+      hairStyle: "bun",
+      glasses: true,
+      book: true,
+      size: 1.05,
+      vibe: "kind"
+    },
+    doctor: {
+      skin: "#ffd7b5",
+      hair: "#3a2f27",
+      shirt: "#4cc9f0",
+      pants: "#3a86ff",
+      shoe: "#1d3557",
+      coat: "#f8fbff",
+      hairStyle: "short",
+      size: 1.08,
+      cross: true,
+      vibe: "calm"
+    },
+    waiter: {
+      skin: "#f2c29b",
+      hair: "#3a2f27",
+      shirt: "#fff8ee",
+      pants: "#e07a5f",
+      shoe: "#7a3b2e",
+      hairStyle: "neat",
+      bow: "#e07a5f",
+      tray: true,
+      size: 1.05,
+      vibe: "smile"
+    },
+    ben: {
+      skin: "#f2c29b",
+      hair: "#2f2a28",
+      shirt: "#40916c",
+      pants: "#2d6a4f",
+      shoe: "#1b4332",
+      hairStyle: "cap",
+      hat: "#95d5b2",
+      size: 1,
+      vibe: "happy"
+    },
+    driver: {
+      skin: "#f2c29b",
+      hair: "#2f2a28",
+      shirt: "#1d3557",
+      pants: "#0d1b2a",
+      shoe: "#000814",
+      hairStyle: "cap",
+      hat: "#457b9d",
+      size: 1.08,
+      vibe: "calm"
+    }
+  };
+
+  function lookOf(id) {
+    return LOOKS[id] || LOOKS.player;
+  }
+
+  function drawNpc(id, pos, now, jump = 0) {
     const bounce = jump ? Math.abs(Math.sin(now / 180)) * (18 + jump * 16) : 0;
-    drawPerson(pos.x, pos.y, color, LifeNpcs[id].name, bounce, now, false);
+    const idleHop = id === "sister" && !jump ? Math.abs(Math.sin(now / 260)) * 3 : Math.sin(now / 420 + pos.x) * 1.2;
+    drawCute(pos.x, pos.y, lookOf(id), LifeNpcs[id].name, bounce + Math.max(0, idleHop), now, false, false);
     if (bangs[id]) {
+      const top = pos.y - 70 - bounce;
       ctx.fillStyle = "#ffb703";
       ctx.beginPath();
-      ctx.arc(pos.x + 20, pos.y - 52 - bounce, 11, 0, Math.PI * 2);
+      ctx.arc(pos.x + 22, top, 12, 0, Math.PI * 2);
       ctx.fill();
+      ctx.strokeStyle = "#fff8ee";
+      ctx.lineWidth = 2;
+      ctx.stroke();
       ctx.fillStyle = "#3a2f27";
-      ctx.font = "700 12px sans-serif";
-      ctx.fillText("!", pos.x + 17, pos.y - 48 - bounce);
+      ctx.font = "800 14px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("!", pos.x + 22, top + 5);
+      ctx.textAlign = "left";
     }
   }
 
-  function drawPerson(x, y, color, label, bounce, now, isPlayer) {
-    const bob = isPlayer ? Math.sin(now / 180) * 2 : 0;
+  function drawCute(x, y, look, label, bounce, now, isPlayer, walking) {
+    const s = look.size || 1;
+    const bob = isPlayer ? Math.sin(now / 160) * 2 : Math.sin(now / 380 + x) * 1.4;
     const py = y - bounce + bob;
-    ctx.fillStyle = "rgba(0,0,0,0.12)";
+    const swing = walking ? Math.sin(now / 90) : Math.sin(now / 320 + x * 0.01);
+    const leg = walking ? Math.sin(now / 90) * 7 : Math.sin(now / 500 + x) * 2;
+
+    ctx.fillStyle = "rgba(0,0,0,0.14)";
     ctx.beginPath();
-    ctx.ellipse(x, y + 18, 16, 6, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, y + 20 * s, 18 * s, 7 * s, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = color;
-    roundRect(x - 12, py - 6, 24, 28, 10);
+
+    // legs
+    ctx.strokeStyle = look.pants;
+    ctx.lineWidth = 7 * s;
+    ctx.lineCap = "round";
     ctx.beginPath();
-    ctx.arc(x, py - 16, 12, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#fff8ee";
+    ctx.moveTo(x - 5 * s, py + 10 * s);
+    ctx.lineTo(x - 7 * s - leg, py + 24 * s);
+    ctx.moveTo(x + 5 * s, py + 10 * s);
+    ctx.lineTo(x + 7 * s + leg, py + 24 * s);
+    ctx.stroke();
+    ctx.fillStyle = look.shoe;
     ctx.beginPath();
-    ctx.arc(x - 4, py - 17, 2.2, 0, Math.PI * 2);
-    ctx.arc(x + 4, py - 17, 2.2, 0, Math.PI * 2);
+    ctx.ellipse(x - 8 * s - leg, py + 26 * s, 7 * s, 3.2 * s, 0, 0, Math.PI * 2);
+    ctx.ellipse(x + 8 * s + leg, py + 26 * s, 7 * s, 3.2 * s, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = "#3a2f27";
-    ctx.font = "700 13px 'Nunito', sans-serif";
+
+    // body
+    ctx.fillStyle = look.shirt;
+    roundRect(x - 14 * s, py - 8 * s, 28 * s, 26 * s, 11 * s);
+    if (look.apron) {
+      ctx.fillStyle = look.apron;
+      roundRect(x - 10 * s, py - 2 * s, 20 * s, 18 * s, 6 * s);
+      ctx.fillStyle = look.shirt;
+      ctx.fillRect(x - 1.5 * s, py - 2 * s, 3 * s, 16 * s);
+    }
+    if (look.coat) {
+      ctx.fillStyle = look.coat;
+      roundRect(x - 16 * s, py - 8 * s, 32 * s, 28 * s, 10 * s);
+      ctx.fillStyle = look.shirt;
+      roundRect(x - 8 * s, py - 4 * s, 16 * s, 18 * s, 6 * s);
+    }
+    if (look.cross) {
+      ctx.fillStyle = "#ef476f";
+      ctx.fillRect(x - 1.5 * s, py - 2 * s, 3 * s, 12 * s);
+      ctx.fillRect(x - 5 * s, py + 2 * s, 10 * s, 3 * s);
+    }
+
+    // arms
+    ctx.strokeStyle = look.shirt;
+    ctx.lineWidth = 6 * s;
+    ctx.beginPath();
+    ctx.moveTo(x - 13 * s, py);
+    ctx.lineTo(x - 20 * s, py + 8 * s + swing * 3);
+    ctx.moveTo(x + 13 * s, py);
+    ctx.lineTo(x + 20 * s, py + 8 * s - swing * 3);
+    ctx.stroke();
+    ctx.fillStyle = look.skin;
+    ctx.beginPath();
+    ctx.arc(x - 20 * s, py + 10 * s + swing * 3, 3.4 * s, 0, Math.PI * 2);
+    ctx.arc(x + 20 * s, py + 10 * s - swing * 3, 3.4 * s, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (look.ball) {
+      ctx.fillStyle = "#e76f51";
+      ctx.beginPath();
+      ctx.arc(x + 24 * s, py + 6 * s - swing * 2, 7 * s, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#fff8ee";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(x + 24 * s, py + 6 * s - swing * 2, 7 * s, 0, Math.PI * 2);
+      ctx.moveTo(x + 17 * s, py + 6 * s - swing * 2);
+      ctx.lineTo(x + 31 * s, py + 6 * s - swing * 2);
+      ctx.stroke();
+    }
+    if (look.book) {
+      ctx.fillStyle = "#c9a227";
+      roundRect(x + 16 * s, py + 2 * s, 10 * s, 12 * s, 2 * s);
+      ctx.fillStyle = "#fff8ee";
+      ctx.fillRect(x + 18 * s, py + 4 * s, 6 * s, 2 * s);
+    }
+    if (look.tray) {
+      ctx.fillStyle = "#d9c4a5";
+      roundRect(x + 14 * s, py + 4 * s - swing * 2, 16 * s, 5 * s, 2 * s);
+      ctx.fillStyle = "#ef476f";
+      ctx.beginPath();
+      ctx.arc(x + 22 * s, py + 2 * s - swing * 2, 3 * s, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const hx = x;
+    const hy = py - 22 * s;
+    drawHairBack(hx, hy, look, s);
+    ctx.fillStyle = look.skin;
+    ctx.beginPath();
+    ctx.arc(hx, hy, 15 * s, 0, Math.PI * 2);
+    ctx.fill();
+    drawHairFront(hx, hy, look, s);
+    drawFace(hx, hy, look, s, now, isPlayer);
+    if (look.hat) drawHat(hx, hy, look, s);
+    if (look.glasses) drawGlasses(hx, hy, s);
+    if (look.bow && look.hairStyle !== "twin") {
+      ctx.fillStyle = look.bow;
+      ctx.beginPath();
+      ctx.moveTo(hx, hy + 10 * s);
+      ctx.lineTo(hx - 6 * s, hy + 16 * s);
+      ctx.lineTo(hx + 6 * s, hy + 16 * s);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // name chip
+    const chipW = Math.max(46, String(label).length * 12 + 16);
+    ctx.fillStyle = "rgba(255,248,238,0.92)";
+    roundRect(x - chipW / 2, py + 30 * s, chipW, 18, 9);
+    ctx.fillStyle = "#5c4d40";
+    ctx.font = "700 12px 'Nunito', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(label, x, py + 38);
+    ctx.fillText(label, x, py + 43 * s);
     ctx.textAlign = "left";
+  }
+
+  function drawHairBack(hx, hy, look, s) {
+    ctx.fillStyle = look.hair;
+    if (look.hairStyle === "twin") {
+      ctx.beginPath();
+      ctx.arc(hx - 14 * s, hy + 4 * s, 7 * s, 0, Math.PI * 2);
+      ctx.arc(hx + 14 * s, hy + 4 * s, 7 * s, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = look.bow || "#ff8fab";
+      ctx.beginPath();
+      ctx.arc(hx - 14 * s, hy - 2 * s, 3.2 * s, 0, Math.PI * 2);
+      ctx.arc(hx + 14 * s, hy - 2 * s, 3.2 * s, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (look.hairStyle === "pony" || look.hairStyle === "mia") {
+      ctx.beginPath();
+      ctx.ellipse(hx + 12 * s, hy + 8 * s, 6 * s, 10 * s, 0.3, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (look.hairStyle === "mom") {
+      ctx.beginPath();
+      ctx.ellipse(hx + 10 * s, hy + 6 * s, 7 * s, 11 * s, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function drawHairFront(hx, hy, look, s) {
+    ctx.fillStyle = look.hair;
+    if (look.hairStyle === "grandma" || look.hairStyle === "bun" || look.hairStyle === "teacher") {
+      ctx.beginPath();
+      ctx.arc(hx, hy - 10 * s, 10 * s, Math.PI, 0);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(hx, hy - 18 * s, 7 * s, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (look.hairStyle === "dad" || look.hairStyle === "short" || look.hairStyle === "neat" || look.hairStyle === "sport" || look.hairStyle === "cap" || look.hairStyle === "boy" || look.hairStyle === "vendor") {
+      ctx.beginPath();
+      ctx.ellipse(hx, hy - 8 * s, 14 * s, 9 * s, 0, Math.PI, 0);
+      ctx.fill();
+      if (look.hairStyle === "boy" || look.hairStyle === "sport") {
+        ctx.beginPath();
+        ctx.moveTo(hx - 4 * s, hy - 16 * s);
+        ctx.lineTo(hx, hy - 22 * s);
+        ctx.lineTo(hx + 4 * s, hy - 16 * s);
+        ctx.fill();
+      }
+    } else if (look.hairStyle === "kid") {
+      ctx.beginPath();
+      ctx.ellipse(hx, hy - 8 * s, 15 * s, 10 * s, 0, Math.PI, 0);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(hx - 2 * s, hy - 16 * s);
+      ctx.quadraticCurveTo(hx + 2 * s, hy - 26 * s, hx + 8 * s, hy - 14 * s);
+      ctx.quadraticCurveTo(hx + 2 * s, hy - 18 * s, hx - 2 * s, hy - 16 * s);
+      ctx.fill();
+    } else if (look.hairStyle === "twin" || look.hairStyle === "mom" || look.hairStyle === "pony" || look.hairStyle === "mia") {
+      ctx.beginPath();
+      ctx.ellipse(hx, hy - 7 * s, 15 * s, 10 * s, 0, Math.PI, 0);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(hx - 12 * s, hy - 4 * s);
+      ctx.quadraticCurveTo(hx - 2 * s, hy + 2 * s, hx + 10 * s, hy - 6 * s);
+      ctx.quadraticCurveTo(hx, hy - 10 * s, hx - 12 * s, hy - 4 * s);
+      ctx.fill();
+      if (look.clip) {
+        ctx.fillStyle = look.clip;
+        ctx.beginPath();
+        ctx.arc(hx + 10 * s, hy - 10 * s, 3.5 * s, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  function drawFace(hx, hy, look, s, now, isPlayer) {
+    const blink = Math.floor(now / 120) % 48 === 0;
+    // blush
+    if (look.cheeks || look.vibe === "spark" || look.vibe === "happy") {
+      ctx.fillStyle = "rgba(255, 140, 150, 0.35)";
+      ctx.beginPath();
+      ctx.ellipse(hx - 8 * s, hy + 3 * s, 3.2 * s, 2.2 * s, 0, 0, Math.PI * 2);
+      ctx.ellipse(hx + 8 * s, hy + 3 * s, 3.2 * s, 2.2 * s, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // eyes
+    if (blink) {
+      ctx.strokeStyle = "#3a2f27";
+      ctx.lineWidth = 1.6 * s;
+      ctx.beginPath();
+      ctx.moveTo(hx - 7 * s, hy - 1 * s);
+      ctx.lineTo(hx - 3 * s, hy - 1 * s);
+      ctx.moveTo(hx + 3 * s, hy - 1 * s);
+      ctx.lineTo(hx + 7 * s, hy - 1 * s);
+      ctx.stroke();
+    } else {
+      ctx.fillStyle = "#2b211c";
+      ctx.beginPath();
+      ctx.ellipse(hx - 5 * s, hy - 1 * s, 2.6 * s, 3.2 * s, 0, 0, Math.PI * 2);
+      ctx.ellipse(hx + 5 * s, hy - 1 * s, 2.6 * s, 3.2 * s, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.arc(hx - 4 * s, hy - 2.2 * s, 1.1 * s, 0, Math.PI * 2);
+      ctx.arc(hx + 6 * s, hy - 2.2 * s, 1.1 * s, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // mouth
+    ctx.strokeStyle = "#c45c5c";
+    ctx.lineWidth = 1.8 * s;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    if (look.vibe === "calm") {
+      ctx.moveTo(hx - 3 * s, hy + 7 * s);
+      ctx.lineTo(hx + 3 * s, hy + 7 * s);
+    } else if (look.vibe === "kind" || look.vibe === "warm") {
+      ctx.arc(hx, hy + 5 * s, 4 * s, 0.15 * Math.PI, 0.85 * Math.PI);
+    } else {
+      ctx.arc(hx, hy + 4.5 * s, 4.5 * s, 0.1 * Math.PI, 0.9 * Math.PI);
+    }
+    ctx.stroke();
+    if (isPlayer || look.vibe === "spark" || look.vibe === "cheer") {
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.beginPath();
+      ctx.arc(hx + 10 * s, hy - 8 * s, 2 * s, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function drawGlasses(hx, hy, s) {
+    ctx.strokeStyle = "#3a2f27";
+    ctx.lineWidth = 1.5 * s;
+    ctx.beginPath();
+    ctx.arc(hx - 5 * s, hy - 1 * s, 4.2 * s, 0, Math.PI * 2);
+    ctx.arc(hx + 5 * s, hy - 1 * s, 4.2 * s, 0, Math.PI * 2);
+    ctx.moveTo(hx - 1 * s, hy - 1 * s);
+    ctx.lineTo(hx + 1 * s, hy - 1 * s);
+    ctx.stroke();
+  }
+
+  function drawHat(hx, hy, look, s) {
+    ctx.fillStyle = look.hat;
+    if (look.hairStyle === "cap" || look.hairStyle === "vendor") {
+      roundRect(hx - 14 * s, hy - 18 * s, 28 * s, 8 * s, 4 * s);
+      ctx.beginPath();
+      ctx.ellipse(hx + 10 * s, hy - 12 * s, 12 * s, 4 * s, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
   function labels() {
     if (!hoverNpc) return;
-    ctx.fillStyle = "rgba(58,47,39,0.86)";
-    roundRect(player.x - 70, player.y - 78, 140, 28, 10);
+    ctx.fillStyle = "rgba(58,47,39,0.88)";
+    roundRect(player.x - 78, player.y - 92, 156, 28, 12);
     ctx.fillStyle = "#fff8ee";
-    ctx.font = "600 13px 'Nunito', sans-serif";
+    ctx.font = "700 13px 'Nunito', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("靠近后点 " + LifeNpcs[hoverNpc].name, player.x, player.y - 59);
+    ctx.fillText("走近点 " + LifeNpcs[hoverNpc].name, player.x, player.y - 73);
     ctx.textAlign = "left";
   }
 

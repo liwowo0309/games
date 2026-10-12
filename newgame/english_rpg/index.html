@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1c140e" />
+  <title>桥对面</title>
+  <link rel="stylesheet" href="css/style.css?v=5" />
+</head>
+<body>
+  <main class="stage">
+    <img class="scene scene-wide" src="assets/square.jpg" alt="河边小镇的广场。Mia 拿着红线，桥上蹲着一只露着牙的狼，红风筝挂在对岸的树上。" />
+    <img class="scene scene-tall" src="assets/square-tall.jpg" alt="河边小镇的广场。Mia 拿着红线，桥上蹲着一只露着牙的狼，红风筝挂在对岸的树上。" />
+
+    <header class="chapter">
+      <p>第 1 章</p>
+      <h1>桥对面</h1>
+    </header>
+
+    <p class="pocket" id="pocket" hidden>红苹果</p>
+
+    <section class="dialogue" id="dialogue" aria-live="polite">
+      <img class="who" id="who" src="assets/mia.png" alt="" />
+      <div class="said">
+        <p class="name" id="name">Mia</p>
+        <p class="line" id="line">My kite is across the river!</p>
+        <p class="zh" id="zh">我的风筝飞到河对面了。</p>
+        <p class="cue" id="cue">点击或按空格</p>
+        <div class="ask" id="ask" hidden>
+          <div class="ask-row">
+            <button type="button" id="mic">按住说话</button>
+            <button type="button" id="cards-open">看卡片</button>
+          </div>
+          <p class="heard" id="heard"></p>
+          <div class="cards" id="cards" hidden></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="js/talk.js"></script>
+</body>
+</html>
